@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rollup -c",
     "test": "jest",
-    "format": "eslint --fix 'src/**/*.ts'"
+    "format": "eslint --fix 'src/**/*.ts'",
+    "dev": "miniflare -w"
   },
   "eslintConfig": {
     "extends": [
@@ -30,6 +31,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "isomorphic-fetch": "^3.0.0",
     "jest": "^27.1.1",
+    "miniflare": "^1.4.1",
     "prettier": "^2.4.0",
     "rollup": "^2.36.1",
     "rollup-plugin-copy": "^3.3.0",

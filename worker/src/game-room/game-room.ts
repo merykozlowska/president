@@ -165,7 +165,7 @@ export class GameRoom {
     this.sessions.forEach((session) => {
       const message: TurnPlayedOutMessage = {
         type: OutgoingMessageType.turnPlayed,
-        payload: this.getGameStateFor(session.username!),
+        payload: { gameState: this.getGameStateFor(session.username!) },
       };
       session.ws.send(JSON.stringify(message));
     });
@@ -188,7 +188,7 @@ export class GameRoom {
     this.sessions.forEach((session) => {
       const message: StartGameOutMessage = {
         type: OutgoingMessageType.startGame,
-        payload: this.getGameStateFor(session.username!),
+        payload: { gameState: this.getGameStateFor(session.username!) },
       };
       session.ws.send(JSON.stringify(message));
     });

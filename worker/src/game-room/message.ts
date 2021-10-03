@@ -68,12 +68,16 @@ export interface GameStateForPlayer {
 
 export interface StartGameOutMessage {
   type: OutgoingMessageType.startGame;
-  payload: GameStateForPlayer;
+  payload: {
+    gameState: GameStateForPlayer;
+  };
 }
 
 export interface TurnPlayedOutMessage {
   type: OutgoingMessageType.turnPlayed;
-  payload: GameStateForPlayer;
+  payload: {
+    gameState: GameStateForPlayer;
+  };
 }
 
 export type OutgoingMessage =

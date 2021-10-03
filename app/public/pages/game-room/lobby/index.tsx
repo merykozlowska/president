@@ -1,10 +1,10 @@
 import { FunctionComponent } from "preact";
 import { useContext } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
-import { Player } from "../state";
+import { LobbyPlayer } from "../state";
 
 interface Props {
-  players: Player[];
+  players: LobbyPlayer[];
 }
 
 const Lobby: FunctionComponent<Props> = ({ players = [] }) => {

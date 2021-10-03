@@ -30,20 +30,24 @@ interface ReadyInMessage {
   };
 }
 
+interface GameState {
+  players: { name: string; hand: { count: number } }[];
+  hand: Card[];
+  pileTop: Card[];
+  playing: string;
+}
+
 interface StartGameInMessage {
   type: IncomingMessageType.startGame;
   payload: {
-    hand: Card[];
+    gameState: GameState;
   };
 }
 
 interface TurnPlayedInMessage {
   type: IncomingMessageType.turnPlayed;
   payload: {
-    players: { name: string; hand: { count: number } }[];
-    hand: Card[];
-    pileTop: Card[];
-    playing: string;
+    gameState: GameState;
   };
 }
 

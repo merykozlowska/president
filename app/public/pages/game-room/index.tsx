@@ -46,7 +46,9 @@ const GameRoom: FunctionComponent = () => {
       {state.gameState === GameState.waiting && (
         <Lobby players={state.players} />
       )}
-      {state.gameState === GameState.started && <Game hand={state.hand} />}
+      {state.gameState === GameState.started && (
+        <Game hand={state.hand} pileTop={state.pileTop} />
+      )}
     </>
   );
 };

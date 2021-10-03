@@ -1,7 +1,18 @@
 import { FunctionComponent } from "preact";
+import { Card } from "../cards";
 
-const Game: FunctionComponent = () => {
-  return <div>GAME</div>;
+interface Props {
+  hand: Card[];
+}
+
+const Game: FunctionComponent<Props> = ({ hand }) => {
+  return (
+    <div>
+      {hand.map((card) => (
+        <div key={`${card.rank}${card.suit}`}>{`${card.rank}${card.suit}`}</div>
+      ))}
+    </div>
+  );
 };
 
 export { Game };

@@ -1,4 +1,5 @@
 import { IncomingMessage, IncomingMessageType } from "./message";
+import { Card } from "./cards";
 
 export interface Player {
   name: string;
@@ -13,11 +14,13 @@ export enum GameState {
 export interface State {
   players: Player[];
   gameState: GameState;
+  hand?: Card[];
 }
 
 export const initialState: State = {
   players: [],
   gameState: GameState.waiting,
+  hand: undefined,
 };
 
 export const reducer = (state: State, message: IncomingMessage): State => {
@@ -47,6 +50,13 @@ export const reducer = (state: State, message: IncomingMessage): State => {
       return {
         ...state,
         players,
+      };
+    }
+    case IncomingMessageType.startGame: {
+      return {
+        ...state,
+        gameState: GameState.started,
+        hand: message.payload.hand,
       };
     }
     default:

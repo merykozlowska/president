@@ -3,12 +3,15 @@ import {
   IncomingMessageType,
   OutgoingMessage,
   OutgoingMessageType,
+  StartGameOutMessage,
 } from "./message";
+import { Card, Deck } from "./cards";
 
 interface Session {
   ws: WebSocket;
   username?: string;
   ready: boolean;
+  hand?: Card[];
 }
 
 const canHandleMessage = (message: unknown): message is IncomingMessage =>
@@ -101,6 +104,9 @@ export class GameRoom {
             ready: true,
           },
         });
+        if (this.sessions.every((s) => s.ready)) {
+          this.startGame();
+        }
         break;
     }
   }
@@ -113,6 +119,37 @@ export class GameRoom {
         return;
       }
       console.log(`sending to ${session.username} ${stringifiedMessage}`);
+      session.ws.send(stringifiedMessage);
+    });
+  }
+
+  startGame(): void {
+    const deck = new Deck();
+    deck.shuffle();
+    const numberOfPlayers = this.sessions.length;
+    const cardsPerPlayer = Math.ceil(deck.numberOfCards / numberOfPlayers);
+    this.sessions = this.sessions.map((session, idx) => {
+      const oneLess =
+        idx >= numberOfPlayers - (deck.numberOfCards % numberOfPlayers);
+      const cards = deck.cards.slice(
+        idx * cardsPerPlayer,
+        (idx + 1) * cardsPerPlayer - +oneLess
+      );
+      return { ...session, hand: cards };
+    });
+    const players = this.sessions.map((session) => ({
+      name: session.username!,
+      hand: { count: session.hand!.length },
+    }));
+    this.sessions.forEach((session) => {
+      const message: StartGameOutMessage = {
+        type: OutgoingMessageType.startGame,
+        payload: {
+          players,
+          hand: session.hand!,
+        },
+      };
+      const stringifiedMessage = JSON.stringify(message);
       session.ws.send(stringifiedMessage);
     });
   }

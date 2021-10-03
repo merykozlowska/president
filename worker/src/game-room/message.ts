@@ -1,3 +1,5 @@
+import { Card } from "./cards";
+
 export enum IncomingMessageType {
   joined = "joined",
   ready = "ready",
@@ -23,6 +25,7 @@ export enum OutgoingMessageType {
   init = "init",
   joined = "joined",
   ready = "ready",
+  startGame = "startGame",
 }
 
 interface InitOutMessage {
@@ -47,7 +50,16 @@ interface ReadyOutMessage {
   };
 }
 
+export interface StartGameOutMessage {
+  type: OutgoingMessageType.startGame;
+  payload: {
+    players: { name: string; hand: { count: number } }[];
+    hand: Card[];
+  };
+}
+
 export type OutgoingMessage =
   | InitOutMessage
   | JoinedOutMessage
-  | ReadyOutMessage;
+  | ReadyOutMessage
+  | StartGameOutMessage;

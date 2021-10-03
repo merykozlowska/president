@@ -1,7 +1,10 @@
+import { Card } from "./cards";
+
 export enum IncomingMessageType {
   init = "init",
   joined = "joined",
   ready = "ready",
+  startGame = "startGame",
 }
 
 interface InitInMessage {
@@ -26,7 +29,18 @@ interface ReadyInMessage {
   };
 }
 
-export type IncomingMessage = InitInMessage | JoinedInMessage | ReadyInMessage;
+interface StartGameInMessage {
+  type: IncomingMessageType.startGame;
+  payload: {
+    hand: Card[];
+  };
+}
+
+export type IncomingMessage =
+  | InitInMessage
+  | JoinedInMessage
+  | ReadyInMessage
+  | StartGameInMessage;
 
 export const canHandleMessage = (
   message: unknown

@@ -5,6 +5,7 @@ export enum IncomingMessageType {
   joined = "joined",
   ready = "ready",
   startGame = "startGame",
+  turnPlayed = "turnPlayed",
 }
 
 interface InitInMessage {
@@ -36,11 +37,22 @@ interface StartGameInMessage {
   };
 }
 
+interface TurnPlayedInMessage {
+  type: IncomingMessageType.turnPlayed;
+  payload: {
+    players: { name: string; hand: { count: number } }[];
+    hand: Card[];
+    pileTop: Card[];
+    playing: string;
+  };
+}
+
 export type IncomingMessage =
   | InitInMessage
   | JoinedInMessage
   | ReadyInMessage
-  | StartGameInMessage;
+  | StartGameInMessage
+  | TurnPlayedInMessage;
 
 export const canHandleMessage = (
   message: unknown

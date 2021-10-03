@@ -1,7 +1,7 @@
 import { FunctionComponent } from "preact";
-import { Card } from "../cards";
 import { useContext, useState } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
+import { Card } from "../cards";
 
 interface Props {
   hand: Card[];

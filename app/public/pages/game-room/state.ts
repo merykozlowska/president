@@ -59,6 +59,12 @@ export const reducer = (state: State, message: IncomingMessage): State => {
         hand: message.payload.hand,
       };
     }
+    case IncomingMessageType.turnPlayed: {
+      return {
+        ...state,
+        hand: message.payload.hand,
+      };
+    }
     default:
       return state;
   }

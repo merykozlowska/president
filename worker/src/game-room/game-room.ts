@@ -1,9 +1,11 @@
 import {
+  GameStateForPlayer,
   IncomingMessage,
   IncomingMessageType,
   OutgoingMessage,
   OutgoingMessageType,
   StartGameOutMessage,
+  TurnPlayedOutMessage,
 } from "./message";
 import { Card, Deck } from "./cards";
 
@@ -14,12 +16,21 @@ interface Session {
   hand?: Card[];
 }
 
+interface GameState {
+  playing: string;
+  pileTop: Card[];
+}
+
 const canHandleMessage = (message: unknown): message is IncomingMessage =>
   IncomingMessageType[(message as IncomingMessage).type] !== undefined;
 
 export class GameRoom {
   state: DurableObjectState;
   sessions: Session[] = [];
+  gameState: GameState = {
+    playing: "",
+    pileTop: [],
+  };
 
   constructor(state: DurableObjectState) {
     this.state = state;
@@ -110,12 +121,15 @@ export class GameRoom {
         break;
       case IncomingMessageType.play:
         const played = message.payload.cards;
-        session.hand = session.hand!.filter((card) =>
-          played.some(
-            (playedCard) =>
-              card.suit === playedCard.suit && card.rank === playedCard.rank
-          )
+        session.hand = session.hand!.filter(
+          (card) =>
+            !played.some(
+              (playedCard) =>
+                card.suit === playedCard.suit && card.rank === playedCard.rank
+            )
         );
+        this.gameState.pileTop = played;
+        this.broadcastTurnPlayed();
         break;
     }
   }
@@ -129,6 +143,31 @@ export class GameRoom {
       }
       console.log(`sending to ${session.username} ${stringifiedMessage}`);
       session.ws.send(stringifiedMessage);
+    });
+  }
+
+  getGameStateFor(playerName: string): GameStateForPlayer {
+    const playerSession = this.sessions.find(
+      (session) => session.username === playerName
+    );
+    return {
+      playing: this.gameState.playing,
+      hand: playerSession!.hand!,
+      pileTop: this.gameState.pileTop,
+      players: this.sessions.map((session) => ({
+        name: session.username!,
+        hand: { count: session.hand!.length },
+      })),
+    };
+  }
+
+  broadcastTurnPlayed(): void {
+    this.sessions.forEach((session) => {
+      const message: TurnPlayedOutMessage = {
+        type: OutgoingMessageType.turnPlayed,
+        payload: this.getGameStateFor(session.username!),
+      };
+      session.ws.send(JSON.stringify(message));
     });
   }
 
@@ -146,20 +185,12 @@ export class GameRoom {
       );
       session.hand = cards;
     });
-    const players = this.sessions.map((session) => ({
-      name: session.username!,
-      hand: { count: session.hand!.length },
-    }));
     this.sessions.forEach((session) => {
       const message: StartGameOutMessage = {
         type: OutgoingMessageType.startGame,
-        payload: {
-          players,
-          hand: session.hand!,
-        },
+        payload: this.getGameStateFor(session.username!),
       };
-      const stringifiedMessage = JSON.stringify(message);
-      session.ws.send(stringifiedMessage);
+      session.ws.send(JSON.stringify(message));
     });
   }
 }

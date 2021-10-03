@@ -34,6 +34,7 @@ export enum OutgoingMessageType {
   joined = "joined",
   ready = "ready",
   startGame = "startGame",
+  turnPlayed = "turnPlayed",
 }
 
 interface InitOutMessage {
@@ -58,16 +59,26 @@ interface ReadyOutMessage {
   };
 }
 
+export interface GameStateForPlayer {
+  players: { name: string; hand: { count: number } }[];
+  hand: Card[];
+  pileTop: Card[];
+  playing: string;
+}
+
 export interface StartGameOutMessage {
   type: OutgoingMessageType.startGame;
-  payload: {
-    players: { name: string; hand: { count: number } }[];
-    hand: Card[];
-  };
+  payload: GameStateForPlayer;
+}
+
+export interface TurnPlayedOutMessage {
+  type: OutgoingMessageType.turnPlayed;
+  payload: GameStateForPlayer;
 }
 
 export type OutgoingMessage =
   | InitOutMessage
   | JoinedOutMessage
   | ReadyOutMessage
-  | StartGameOutMessage;
+  | StartGameOutMessage
+  | TurnPlayedOutMessage;

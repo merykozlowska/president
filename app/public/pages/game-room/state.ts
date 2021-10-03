@@ -27,7 +27,7 @@ export const reducer = (state: State, message: IncomingMessage): State => {
         ...state,
         players: message.payload.players.map((player) => ({
           name: player.name,
-          ready: false,
+          ready: player.ready,
         })),
       };
     }

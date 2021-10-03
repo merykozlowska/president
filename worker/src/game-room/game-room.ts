@@ -8,6 +8,7 @@ import {
 interface Session {
   ws: WebSocket;
   username?: string;
+  ready: boolean;
 }
 
 const canHandleMessage = (message: unknown): message is IncomingMessage =>
@@ -44,7 +45,7 @@ export class GameRoom {
 
   handleSession(ws: WebSocket): void {
     ws.accept();
-    const session = { ws };
+    const session = { ws, ready: false };
     this.sessions.push(session);
     ws.addEventListener("message", async (msg) => {
       console.log("GOT MESSAGE 🎉", msg);
@@ -74,9 +75,10 @@ export class GameRoom {
             type: OutgoingMessageType.init,
             payload: {
               players: this.sessions
-                .filter((session) => Boolean(session.username))
-                .map((session) => ({
-                  name: session.username,
+                .filter((s) => Boolean(s.username))
+                .map((s) => ({
+                  name: s.username,
+                  ready: s.ready,
                 })),
             },
           })
@@ -91,6 +93,7 @@ export class GameRoom {
         if (!session.username) {
           break;
         }
+        session.ready = Boolean(message.payload.ready);
         this.broadcast({
           type: OutgoingMessageType.ready,
           payload: {

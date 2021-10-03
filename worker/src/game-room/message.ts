@@ -3,6 +3,7 @@ import { Card } from "./cards";
 export enum IncomingMessageType {
   joined = "joined",
   ready = "ready",
+  play = "play",
 }
 
 interface JoinedInMessage {
@@ -19,7 +20,14 @@ interface ReadyInMessage {
   };
 }
 
-export type IncomingMessage = JoinedInMessage | ReadyInMessage;
+interface PlayInMessage {
+  type: IncomingMessageType.play;
+  payload: {
+    cards: Card[];
+  };
+}
+
+export type IncomingMessage = JoinedInMessage | ReadyInMessage | PlayInMessage;
 
 export enum OutgoingMessageType {
   init = "init",

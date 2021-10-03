@@ -18,12 +18,13 @@ const suits = ["♣️", "♦️", "♥️", "♠️"] as const;
 type Rank = typeof ranks[number];
 type Suit = typeof suits[number];
 
-export class Card {
-  constructor(public rank: Rank, public suit: Suit) {}
+export interface Card {
+  rank: Rank;
+  suit: Suit;
 }
 
 const initDeck = (): Card[] =>
-  ranks.flatMap((rank) => suits.map((suit) => new Card(rank, suit)));
+  ranks.flatMap((rank) => suits.map((suit) => ({ rank, suit })));
 
 export class Deck {
   constructor(public cards: Card[] = initDeck()) {}

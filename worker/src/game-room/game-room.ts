@@ -108,6 +108,15 @@ export class GameRoom {
           this.startGame();
         }
         break;
+      case IncomingMessageType.play:
+        const played = message.payload.cards;
+        session.hand = session.hand!.filter((card) =>
+          played.some(
+            (playedCard) =>
+              card.suit === playedCard.suit && card.rank === playedCard.rank
+          )
+        );
+        break;
     }
   }
 
@@ -128,14 +137,14 @@ export class GameRoom {
     deck.shuffle();
     const numberOfPlayers = this.sessions.length;
     const cardsPerPlayer = Math.ceil(deck.numberOfCards / numberOfPlayers);
-    this.sessions = this.sessions.map((session, idx) => {
+    this.sessions.forEach((session, idx) => {
       const oneLess =
         idx >= numberOfPlayers - (deck.numberOfCards % numberOfPlayers);
       const cards = deck.cards.slice(
         idx * cardsPerPlayer,
         (idx + 1) * cardsPerPlayer - +oneLess
       );
-      return { ...session, hand: cards };
+      session.hand = cards;
     });
     const players = this.sessions.map((session) => ({
       name: session.username!,

@@ -1,26 +1,24 @@
 import styles from "./style.module.css";
-import { useState } from "preact/hooks";
 import { FunctionComponent } from "preact";
+import { useLocation } from "preact-iso";
 
 const Home: FunctionComponent = () => {
-  const [count, setCount] = useState(0);
+  const { route } = useLocation();
+
+  const handleCreate = async () => {
+    const response = await fetch(`${import.meta.env.API_URL}/game`, {
+      method: "POST",
+    });
+    if (response.ok) {
+      const { id } = await response.json();
+      route(`/game/${id}`);
+    }
+  };
 
   return (
-    <>
-      <section class={styles.home}>
-        <h1>Home</h1>
-        <p>This is the home page.</p>
-        <>
-          <button style={{ width: 30 }} onClick={() => setCount(count - 1)}>
-            -
-          </button>
-          <output style={{ padding: 10 }}>Count: {count}</output>
-          <button style={{ width: 30 }} onClick={() => setCount(count + 1)}>
-            +
-          </button>
-        </>
-      </section>
-    </>
+    <section class={styles.home}>
+      <button onClick={handleCreate}>Create new game</button>
+    </section>
   );
 };
 

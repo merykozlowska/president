@@ -1,3 +1,4 @@
+import { FunctionComponent } from "preact";
 import {
   LocationProvider,
   Router,
@@ -7,26 +8,35 @@ import {
   hydrate,
   prerender as ssr,
 } from "preact-iso";
-import { FunctionComponent } from "preact";
+import { useState } from "preact/hooks";
 import Home from "./pages/home";
 import NotFound from "./pages/_404.js";
-import Header from "./header";
+import { Header } from "./components/header";
+import { Session, SessionContext } from "./components/session-context";
 
-const About = lazy(() => import("./pages/about"));
+const GameRoom = lazy(() => import("./pages/game-room"));
 
 export const App: FunctionComponent = () => {
+  const [session, setSession] = useState<Session>();
+
+  const updateSession = (sessionData: Partial<Session>) => {
+    setSession({ ...session, ...sessionData });
+  };
+
   return (
     <LocationProvider>
-      <div class="app">
-        <Header />
-        <ErrorBoundary>
-          <Router>
-            <Route path="/" component={Home} />
-            <Route path="/about" component={About} />
-            <Route default component={NotFound} />
-          </Router>
-        </ErrorBoundary>
-      </div>
+      <SessionContext.Provider value={{ session, updateSession }}>
+        <div class="app">
+          <Header />
+          <ErrorBoundary>
+            <Router>
+              <Route path="/" component={Home} />
+              <Route path="/game/:id" component={GameRoom} />
+              <Route default component={NotFound} />
+            </Router>
+          </ErrorBoundary>
+        </div>
+      </SessionContext.Provider>
     </LocationProvider>
   );
 };

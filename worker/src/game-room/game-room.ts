@@ -86,6 +86,19 @@ export class GameRoom {
           type: OutgoingMessageType.joined,
           payload: { name: username },
         });
+        break;
+      case IncomingMessageType.ready:
+        if (!session.username) {
+          break;
+        }
+        this.broadcast({
+          type: OutgoingMessageType.ready,
+          payload: {
+            name: session.username,
+            ready: true,
+          },
+        });
+        break;
     }
   }
 

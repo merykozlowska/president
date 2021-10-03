@@ -1,11 +1,7 @@
 import { FunctionComponent } from "preact";
 import { useContext } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
-
-interface Player {
-  name: string;
-  ready: boolean;
-}
+import { Player } from "../state";
 
 interface Props {
   players: Player[];
@@ -20,6 +16,12 @@ const Lobby: FunctionComponent<Props> = ({ players = [] }) => {
     updateSession({ username });
     session.ws.send(
       JSON.stringify({ type: "joined", payload: { name: username } })
+    );
+  };
+
+  const sendReady = () => {
+    session.ws.send(
+      JSON.stringify({ type: "ready", payload: { ready: true } })
     );
   };
 
@@ -39,6 +41,7 @@ const Lobby: FunctionComponent<Props> = ({ players = [] }) => {
           </li>
         ))}
       </ul>
+      <button onClick={sendReady}>Ready!</button>
     </section>
   );
 };

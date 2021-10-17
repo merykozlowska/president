@@ -194,6 +194,11 @@ export class GameRoom {
             )
         );
         this.roomState.gameState.pileTop = played;
+        this.roomState.gameState.playing =
+          this.roomState.players[
+            (this.roomState.players.indexOf(player) + 1) %
+              this.roomState.players.length
+          ].id;
         this.broadcastTurnPlayed();
         break;
       }
@@ -299,11 +304,19 @@ export class GameRoom {
       };
     });
 
+    const playing = players.find((player) =>
+      player.hand.some((card) => card.rank === "3" && card.suit === "♣")
+    );
+
+    if (!playing) {
+      throw new Error("Player with 3♣ not found");
+    }
+
     this.roomState = {
       state: State.playing,
       players,
       gameState: {
-        playing: "",
+        playing: playing.id,
         pileTop: [],
       },
     };

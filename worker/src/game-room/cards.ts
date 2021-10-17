@@ -13,7 +13,7 @@ const ranks = [
   "A",
   "2",
 ] as const;
-const suits = ["♣️", "♦️", "♥️", "♠️"] as const;
+const suits = ["♣", "♦", "♥", "♠"] as const;
 
 type Rank = typeof ranks[number];
 type Suit = typeof suits[number];

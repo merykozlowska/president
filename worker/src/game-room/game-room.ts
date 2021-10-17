@@ -31,6 +31,7 @@ interface GamePlayer extends CommonPlayer {
 interface GameState {
   playing: string;
   pileTop: Card[];
+  hasToPlay3Club: boolean;
 }
 
 enum State {
@@ -194,6 +195,7 @@ export class GameRoom {
           break;
         }
 
+        this.roomState.gameState.hasToPlay3Club = false;
         player.hand = player.hand.filter(
           (card) =>
             !played.some(
@@ -235,6 +237,9 @@ export class GameRoom {
 
     if (!played.length) {
       return false;
+    }
+    if (this.roomState.gameState.hasToPlay3Club) {
+      return played.every((card) => card.rank === "3" && card.suit === "♣");
     }
     if (!played.every((card) => card.rank === played[0].rank)) {
       return false;
@@ -306,6 +311,7 @@ export class GameRoom {
       playing: this.roomState.gameState.playing,
       hand: player.hand,
       pileTop: this.roomState.gameState.pileTop,
+      hasToPlay3Club: this.roomState.gameState.hasToPlay3Club,
       players: this.roomState.players.map((player) => ({
         id: player.id,
         name: player.username,
@@ -369,6 +375,7 @@ export class GameRoom {
       gameState: {
         playing: playing.id,
         pileTop: [],
+        hasToPlay3Club: true,
       },
     };
 

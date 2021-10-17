@@ -1,5 +1,5 @@
 import { FunctionComponent } from "preact";
-import { useContext, useState } from "preact/hooks";
+import { useContext, useEffect, useState } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
 import { Card, ranksCompare } from "../cards";
 import { Player } from "../state";
@@ -9,6 +9,7 @@ interface Props {
   pileTop: Card[];
   players: Player[];
   playing: string;
+  hasToPlay3Club: boolean;
 }
 
 const Game: FunctionComponent<Props> = ({
@@ -16,6 +17,7 @@ const Game: FunctionComponent<Props> = ({
   pileTop,
   players,
   playing,
+  hasToPlay3Club,
 }) => {
   const { session } = useContext(SessionContext);
 
@@ -36,6 +38,9 @@ const Game: FunctionComponent<Props> = ({
   };
 
   const canBePlayed = (card: Card): boolean => {
+    if (hasToPlay3Club) {
+      return card.rank === "3" && card.suit === "♣";
+    }
     if (!pileTop.length) {
       return true;
     }

@@ -30,6 +30,10 @@ const Game: FunctionComponent<Props> = ({
     session.ws.send(JSON.stringify({ type: "play", payload: { cards } }));
   };
 
+  const pass = () => {
+    session.ws.send(JSON.stringify({ type: "pass" }));
+  };
+
   useEffect(() => {
     setSelectedCards(new Array(hand.length).fill(false));
   }, [hand.length, playing]);
@@ -102,6 +106,12 @@ const Game: FunctionComponent<Props> = ({
       </div>
       <button disabled={playing !== session.id} onClick={play}>
         {playing === session.id ? "Play" : "Not your turn"}
+      </button>
+      <button
+        disabled={playing !== session.id || hasToPlay3Club}
+        onClick={pass}
+      >
+        {playing === session.id ? "Pass" : "Not your turn"}
       </button>
     </section>
   );

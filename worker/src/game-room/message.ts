@@ -4,6 +4,7 @@ export enum IncomingMessageType {
   joined = "joined",
   ready = "ready",
   play = "play",
+  pass = "pass",
 }
 
 interface JoinedInMessage {
@@ -27,7 +28,15 @@ interface PlayInMessage {
   };
 }
 
-export type IncomingMessage = JoinedInMessage | ReadyInMessage | PlayInMessage;
+interface PassInMessage {
+  type: IncomingMessageType.pass;
+}
+
+export type IncomingMessage =
+  | JoinedInMessage
+  | ReadyInMessage
+  | PlayInMessage
+  | PassInMessage;
 
 export enum OutgoingMessageType {
   init = "init",
@@ -75,6 +84,7 @@ export interface GameStateForPlayer {
     id: string;
     name: string;
     hand: { count: number };
+    passed: boolean;
   }[];
   hand: Card[];
   pileTop: Card[];
@@ -93,6 +103,9 @@ export interface TurnPlayedOutMessage {
   type: OutgoingMessageType.turnPlayed;
   payload: {
     gameState: GameStateForPlayer;
+    played: {
+      id: string;
+    };
   };
 }
 

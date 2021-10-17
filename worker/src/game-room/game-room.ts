@@ -26,6 +26,7 @@ interface LobbyPlayer extends CommonPlayer {
 
 interface GamePlayer extends CommonPlayer {
   hand: Card[];
+  passed: boolean;
 }
 
 interface GameState {
@@ -204,19 +205,70 @@ export class GameRoom {
             )
         );
         if (played.every((card) => card.rank === "2")) {
-          this.roomState.gameState.pileTop = [];
+          this.startNewRound();
         } else {
           this.roomState.gameState.pileTop = played;
-          this.roomState.gameState.playing =
-            this.roomState.players[
-              (this.roomState.players.indexOf(player) + 1) %
-                this.roomState.players.length
-            ].id;
+          this.roomState.gameState.playing = this.nextPlayer(player).id;
         }
-        this.broadcastTurnPlayed();
+        this.broadcastTurnPlayed({ player });
+        break;
+      }
+
+      case IncomingMessageType.pass: {
+        if (this.roomState.state !== State.playing) {
+          console.log(`${session.id} passed but not playing`);
+          // todo reply with error
+          break;
+        }
+
+        const player = this.roomState.players.find(
+          ({ id }) => id === session.id
+        );
+        if (!player) {
+          break;
+        }
+        if (player.id !== this.roomState.gameState.playing) {
+          // todo reply with error
+          break;
+        }
+        if (this.roomState.gameState.hasToPlay3Club) {
+          // todo reply with error
+          break;
+        }
+
+        this.roomState.gameState.playing = this.nextPlayer(player).id;
+        player.passed = true;
+
+        if (this.roomState.players.every((p) => p.passed)) {
+          this.startNewRound();
+        }
+
+        this.broadcastTurnPlayed({ player });
         break;
       }
     }
+  }
+
+  startNewRound(): void {
+    if (this.roomState.state !== State.playing) {
+      throw new Error("Cannot start new round when not playing");
+    }
+    this.roomState.gameState.pileTop = [];
+    this.roomState.players.forEach((player) => {
+      player.passed = false;
+    });
+  }
+
+  nextPlayer(currentPlayer: GamePlayer): GamePlayer {
+    if (this.roomState.state !== State.playing) {
+      throw new Error("Cannot get next player when not playing");
+    }
+    const playingPlayers = this.roomState.players.filter(
+      (player) => !player.passed
+    );
+    return playingPlayers[
+      (playingPlayers.indexOf(currentPlayer) + 1) % playingPlayers.length
+    ];
   }
 
   validatePlayed(played: Card[], player: GamePlayer): boolean {
@@ -316,18 +368,24 @@ export class GameRoom {
         id: player.id,
         name: player.username,
         hand: { count: player.hand.length },
+        passed: player.passed,
       })),
     };
   }
 
-  broadcastTurnPlayed(): void {
+  broadcastTurnPlayed(played: { player: GamePlayer }): void {
     const disconnected: CommonPlayer[] = [];
     this.roomState.players.forEach((player) => {
       const gameStateForPlayer = this.getGameStateFor(player.id);
       if (gameStateForPlayer) {
         const message: TurnPlayedOutMessage = {
           type: OutgoingMessageType.turnPlayed,
-          payload: { gameState: gameStateForPlayer },
+          payload: {
+            gameState: gameStateForPlayer,
+            played: {
+              id: played.player.id,
+            },
+          },
         };
         try {
           player.session.ws.send(JSON.stringify(message));
@@ -358,6 +416,7 @@ export class GameRoom {
         username: player.username,
         hand: cards.sort(cardsCompare),
         session: player.session,
+        passed: false,
       };
     });
 

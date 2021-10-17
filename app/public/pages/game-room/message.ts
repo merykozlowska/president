@@ -3,6 +3,7 @@ import { Card } from "./cards";
 export enum IncomingMessageType {
   init = "init",
   joined = "joined",
+  disconnected = "disconnected",
   ready = "ready",
   startGame = "startGame",
   turnPlayed = "turnPlayed",
@@ -17,6 +18,13 @@ interface InitInMessage {
 
 interface JoinedInMessage {
   type: IncomingMessageType.joined;
+  payload: {
+    name: string;
+  };
+}
+
+interface DisconnectedInMessage {
+  type: IncomingMessageType.disconnected;
   payload: {
     name: string;
   };
@@ -54,6 +62,7 @@ interface TurnPlayedInMessage {
 export type IncomingMessage =
   | InitInMessage
   | JoinedInMessage
+  | DisconnectedInMessage
   | ReadyInMessage
   | StartGameInMessage
   | TurnPlayedInMessage;

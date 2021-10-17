@@ -115,7 +115,7 @@ export class GameRoom {
             ready: true,
           },
         });
-        if (this.sessions.every((s) => s.ready)) {
+        if (this.sessions.every((s) => !s.username || s.ready)) {
           this.startGame();
         }
         break;
@@ -137,12 +137,38 @@ export class GameRoom {
   broadcast(message: OutgoingMessage): void {
     const stringifiedMessage = JSON.stringify(message);
 
+    const disconnected: Session[] = [];
     this.sessions.forEach((session) => {
       if (!session.username) {
         return;
       }
       console.log(`sending to ${session.username} ${stringifiedMessage}`);
-      session.ws.send(stringifiedMessage);
+      try {
+        session.ws.send(stringifiedMessage);
+      } catch (e) {
+        console.log(e);
+        disconnected.push(session);
+      }
+    });
+    this.handleDisconnectedSessions(disconnected);
+  }
+
+  handleDisconnectedSessions(disconnectedSessions: Session[]): void {
+    if (!disconnectedSessions.length) {
+      return;
+    }
+    this.sessions = this.sessions.filter(
+      (session) => !disconnectedSessions.includes(session)
+    );
+    disconnectedSessions.forEach((session) => {
+      if (session.username) {
+        this.broadcast({
+          type: OutgoingMessageType.disconnected,
+          payload: {
+            name: session.username,
+          },
+        });
+      }
     });
   }
 
@@ -162,13 +188,20 @@ export class GameRoom {
   }
 
   broadcastTurnPlayed(): void {
+    const disconnected: Session[] = [];
     this.sessions.forEach((session) => {
       const message: TurnPlayedOutMessage = {
         type: OutgoingMessageType.turnPlayed,
         payload: { gameState: this.getGameStateFor(session.username!) },
       };
-      session.ws.send(JSON.stringify(message));
+      try {
+        session.ws.send(JSON.stringify(message));
+      } catch (e) {
+        console.log(e);
+        disconnected.push(session);
+      }
     });
+    this.handleDisconnectedSessions(disconnected);
   }
 
   startGame(): void {

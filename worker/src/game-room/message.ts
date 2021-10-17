@@ -32,6 +32,7 @@ export type IncomingMessage = JoinedInMessage | ReadyInMessage | PlayInMessage;
 export enum OutgoingMessageType {
   init = "init",
   joined = "joined",
+  disconnected = "disconnected",
   ready = "ready",
   startGame = "startGame",
   turnPlayed = "turnPlayed",
@@ -46,6 +47,13 @@ interface InitOutMessage {
 
 interface JoinedOutMessage {
   type: OutgoingMessageType.joined;
+  payload: {
+    name: string;
+  };
+}
+
+interface DisconnectedOutMessage {
+  type: OutgoingMessageType.disconnected;
   payload: {
     name: string;
   };
@@ -83,6 +91,7 @@ export interface TurnPlayedOutMessage {
 export type OutgoingMessage =
   | InitOutMessage
   | JoinedOutMessage
+  | DisconnectedOutMessage
   | ReadyOutMessage
   | StartGameOutMessage
   | TurnPlayedOutMessage;

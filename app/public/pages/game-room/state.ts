@@ -60,6 +60,21 @@ export const reducer = (state: State, message: IncomingMessage): State => {
         players: [...state.players, player],
       };
     }
+    case IncomingMessageType.disconnected:
+      if (state.gameState === GameState.waiting) {
+        return {
+          ...state,
+          players: state.players.filter(
+            (player) => player.name !== message.payload.name
+          ),
+        };
+      }
+      return {
+        ...state,
+        players: state.players.filter(
+          (player) => player.name !== message.payload.name
+        ),
+      };
     case IncomingMessageType.ready: {
       if (state.gameState !== GameState.waiting) {
         return state;

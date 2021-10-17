@@ -42,7 +42,12 @@ interface ReadyInMessage {
 }
 
 interface GameState {
-  players: { id: string; name: string; hand: { count: number } }[];
+  players: {
+    id: string;
+    name: string;
+    hand: { count: number };
+    passed: boolean;
+  }[];
   hand: Card[];
   pileTop: Card[];
   playing: string;

@@ -11,6 +11,7 @@ export interface Player {
   name: string;
   id: string;
   hand: { count: number };
+  passed: boolean;
 }
 
 export enum GameState {

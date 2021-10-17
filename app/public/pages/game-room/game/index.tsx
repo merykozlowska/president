@@ -104,7 +104,12 @@ const Game: FunctionComponent<Props> = ({
           ))}
         </ul>
       </div>
-      <button disabled={playing !== session.id} onClick={play}>
+      <button
+        disabled={
+          playing !== session.id || selectedCards.every((selected) => !selected)
+        }
+        onClick={play}
+      >
         {playing === session.id ? "Play" : "Not your turn"}
       </button>
       <button

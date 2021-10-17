@@ -1,7 +1,7 @@
 import { FunctionComponent } from "preact";
 import { useContext, useState } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
-import { Card } from "../cards";
+import { Card, ranksCompare } from "../cards";
 import { Player } from "../state";
 
 interface Props {
@@ -34,6 +34,25 @@ const Game: FunctionComponent<Props> = ({
     setSelectedCards(newSelected);
   };
 
+  const canBePlayed = (card: Card): boolean => {
+    if (!pileTop.length) {
+      return true;
+    }
+    if (ranksCompare(card.rank, pileTop[0].rank) <= 0) {
+      return false;
+    }
+    if (pileTop.length > 1) {
+      const numberOfCardsOfSameRank = hand.filter(
+        (handCard) => card.rank === handCard.rank
+      ).length;
+      if (numberOfCardsOfSameRank < pileTop.length) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   return (
     <section>
       <div>
@@ -64,6 +83,7 @@ const Game: FunctionComponent<Props> = ({
                   type="checkbox"
                   checked={selectedCards[idx]}
                   onClick={() => selectCard(idx)}
+                  disabled={!canBePlayed(card)}
                 />{" "}
                 {`${card.rank}${card.suit}`}
               </label>

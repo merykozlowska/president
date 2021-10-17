@@ -1,5 +1,4 @@
 const ranks = [
-  "2",
   "3",
   "4",
   "5",
@@ -12,6 +11,7 @@ const ranks = [
   "Q",
   "K",
   "A",
+  "2",
 ] as const;
 const suits = ["C", "D", "H", "S"] as const;
 
@@ -22,3 +22,6 @@ export interface Card {
   rank: Rank;
   suit: Suit;
 }
+
+export const ranksCompare = (a: Rank, b: Rank): number =>
+  ranks.indexOf(a) - ranks.indexOf(b);

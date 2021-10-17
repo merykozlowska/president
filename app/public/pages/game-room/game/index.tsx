@@ -26,6 +26,7 @@ const Game: FunctionComponent<Props> = ({
   const play = () => {
     const cards = hand.filter((card, idx) => selectedCards[idx]);
     session.ws.send(JSON.stringify({ type: "play", payload: { cards } }));
+    setSelectedCards([]);
   };
 
   const selectCard = (idx) => {

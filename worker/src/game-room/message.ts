@@ -79,12 +79,20 @@ interface ReadyOutMessage {
   };
 }
 
+export enum PlayerRank {
+  president = "president",
+  vicePresident = "vicePresident",
+  aHole = "aHole",
+  none = "none",
+}
+
 export interface GameStateForPlayer {
   players: {
     id: string;
     name: string;
     hand: { count: number };
     passed: boolean;
+    rank: PlayerRank | null;
   }[];
   hand: Card[];
   pileTop: Card[];

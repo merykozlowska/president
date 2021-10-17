@@ -7,11 +7,19 @@ export interface LobbyPlayer {
   ready: boolean;
 }
 
+export enum PlayerRank {
+  president = "president",
+  vicePresident = "vicePresident",
+  aHole = "aHole",
+  none = "none",
+}
+
 export interface Player {
   name: string;
   id: string;
   hand: { count: number };
   passed: boolean;
+  rank: PlayerRank | null;
 }
 
 export enum GameState {

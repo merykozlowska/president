@@ -4,6 +4,7 @@ import {
   IncomingMessageType,
   OutgoingMessage,
   OutgoingMessageType,
+  PlayerRank,
   StartGameOutMessage,
   TurnPlayedOutMessage,
 } from "./message";
@@ -27,12 +28,14 @@ interface LobbyPlayer extends CommonPlayer {
 interface GamePlayer extends CommonPlayer {
   hand: Card[];
   passed: boolean;
+  rank: PlayerRank | null;
 }
 
 interface GameState {
   playing: string;
   pileTop: Card[];
   hasToPlay3Club: boolean;
+  playerRanksLeft: PlayerRank[];
 }
 
 enum State {
@@ -204,6 +207,30 @@ export class GameRoom {
                 card.suit === playedCard.suit && card.rank === playedCard.rank
             )
         );
+
+        if (!player.hand.length) {
+          const nextRank = this.roomState.gameState.playerRanksLeft.pop();
+          if (!nextRank) {
+            throw new Error("No ranks left???");
+          }
+          player.rank = nextRank;
+
+          const playersWithoutRank = this.roomState.players.filter(
+            (p) => p.rank == null
+          );
+          if (playersWithoutRank.length === 1) {
+            playersWithoutRank[0].rank = PlayerRank.aHole;
+            this.broadcastTurnPlayed({ player });
+            this.finishGame();
+            break;
+          }
+
+          const everyoneElsePassed = playersWithoutRank.every((p) => p.passed);
+          if (everyoneElsePassed) {
+            this.startNewRound();
+          }
+        }
+
         if (played.every((card) => card.rank === "2")) {
           this.startNewRound();
         } else {
@@ -239,7 +266,7 @@ export class GameRoom {
         this.roomState.gameState.playing = this.nextPlayer(player).id;
         player.passed = true;
 
-        if (this.roomState.players.every((p) => p.passed)) {
+        if (this.roomState.players.every((p) => p.passed || p.rank != null)) {
           this.startNewRound();
         }
 
@@ -247,6 +274,11 @@ export class GameRoom {
         break;
       }
     }
+  }
+
+  finishGame(): void {
+    // todo
+    console.log("GAME ENDED");
   }
 
   startNewRound(): void {
@@ -264,7 +296,7 @@ export class GameRoom {
       throw new Error("Cannot get next player when not playing");
     }
     const playingPlayers = this.roomState.players.filter(
-      (player) => !player.passed
+      (player) => !player.passed && player.rank == null
     );
     return playingPlayers[
       (playingPlayers.indexOf(currentPlayer) + 1) % playingPlayers.length
@@ -369,6 +401,7 @@ export class GameRoom {
         name: player.username,
         hand: { count: player.hand.length },
         passed: player.passed,
+        rank: player.rank,
       })),
     };
   }
@@ -417,6 +450,7 @@ export class GameRoom {
         hand: cards.sort(cardsCompare),
         session: player.session,
         passed: false,
+        rank: null,
       };
     });
 
@@ -435,6 +469,11 @@ export class GameRoom {
         playing: playing.id,
         pileTop: [],
         hasToPlay3Club: true,
+        playerRanksLeft: [
+          ...new Array(Math.max(numberOfPlayers - 3, 0)).fill(PlayerRank.none),
+          ...(numberOfPlayers >= 3 ? [PlayerRank.vicePresident] : []),
+          PlayerRank.president,
+        ],
       },
     };
 

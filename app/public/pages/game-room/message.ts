@@ -1,4 +1,5 @@
 import { Card } from "./cards";
+import { PlayerRank } from "./state";
 
 export enum IncomingMessageType {
   init = "init",
@@ -47,6 +48,7 @@ interface GameState {
     name: string;
     hand: { count: number };
     passed: boolean;
+    rank: PlayerRank | null;
   }[];
   hand: Card[];
   pileTop: Card[];

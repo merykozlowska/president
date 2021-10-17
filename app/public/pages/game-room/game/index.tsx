@@ -95,7 +95,9 @@ const Game: FunctionComponent<Props> = ({
           {players.map((player) => (
             <li key={player.id}>{`${player.id === playing ? "➡" : ""}${
               player.name
-            } - ${player.hand.count} ${player.passed ? "- PASSED" : ""}`}</li>
+            } - ${player.hand.count} ${player.passed ? "- PASSED" : ""} ${
+              player.rank ? player.rank : ""
+            }`}</li>
           ))}
         </ul>
       </div>

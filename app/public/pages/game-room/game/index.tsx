@@ -21,13 +21,12 @@ const Game: FunctionComponent<Props> = ({
 }) => {
   const { session } = useContext(SessionContext);
 
-  const [selectedCards, setSelectedCards] = useState<boolean[]>(
-    new Array(hand.length).fill(false)
-  );
+  const [selectedCards, setSelectedCards] = useState<Set<Card>>(new Set());
 
   const play = () => {
-    const cards = hand.filter((card, idx) => selectedCards[idx]);
-    session.ws.send(JSON.stringify({ type: "play", payload: { cards } }));
+    session.ws.send(
+      JSON.stringify({ type: "play", payload: { cards: [...selectedCards] } })
+    );
   };
 
   const pass = () => {
@@ -35,12 +34,34 @@ const Game: FunctionComponent<Props> = ({
   };
 
   useEffect(() => {
-    setSelectedCards(new Array(hand.length).fill(false));
-  }, [hand.length, playing]);
+    setSelectedCards(new Set());
+  }, [hand]);
 
-  const selectCard = (idx) => {
-    const newSelected = [...selectedCards];
-    newSelected[idx] = !newSelected[idx];
+  const toggleCardSelection = (card: Card): void => {
+    const newSelected = new Set(selectedCards);
+
+    if (selectedCards.has(card)) {
+      newSelected.delete(card);
+      setSelectedCards(newSelected);
+      return;
+    }
+
+    newSelected.add(card);
+
+    // deselect other ranks
+    for (const selectedCard of newSelected) {
+      if (selectedCard.rank !== card.rank) {
+        newSelected.delete(selectedCard);
+      }
+    }
+
+    // deselect oldest selected if too many
+    if (pileTop.length && newSelected.size > pileTop.length) {
+      const iterator = newSelected[Symbol.iterator]();
+      const firstSelected = iterator.next().value;
+      newSelected.delete(firstSelected);
+    }
+
     setSelectedCards(newSelected);
   };
 
@@ -89,13 +110,13 @@ const Game: FunctionComponent<Props> = ({
       <div>
         hand:{" "}
         <ul>
-          {hand.map((card, idx) => (
+          {hand.map((card) => (
             <li key={`${card.rank}${card.suit}`}>
               <label>
                 <input
                   type="checkbox"
-                  checked={selectedCards[idx]}
-                  onClick={() => selectCard(idx)}
+                  checked={selectedCards.has(card)}
+                  onClick={() => toggleCardSelection(card)}
                   disabled={!canBePlayed(card)}
                 />{" "}
                 {`${card.rank}${card.suit}`}
@@ -105,9 +126,7 @@ const Game: FunctionComponent<Props> = ({
         </ul>
       </div>
       <button
-        disabled={
-          playing !== session.id || selectedCards.every((selected) => !selected)
-        }
+        disabled={playing !== session.id || !selectedCards.size}
         onClick={play}
       >
         {playing === session.id ? "Play" : "Not your turn"}

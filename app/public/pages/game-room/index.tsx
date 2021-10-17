@@ -20,7 +20,7 @@ const GameRoom: FunctionComponent = () => {
     const ws = new WebSocket(`${import.meta.env.WS_URL}/game/${id}/websocket`);
 
     ws.addEventListener("open", () => {
-      updateSession({ ws, username });
+      updateSession({ ws, username, id: username });
       ws.send(JSON.stringify({ type: "joined", payload: { name: username } }));
     });
 

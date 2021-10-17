@@ -185,6 +185,10 @@ export class GameRoom {
         if (!player) {
           break;
         }
+        if (player.id !== this.roomState.gameState.playing) {
+          // todo reply with error
+          break;
+        }
 
         player.hand = player.hand.filter(
           (card) =>

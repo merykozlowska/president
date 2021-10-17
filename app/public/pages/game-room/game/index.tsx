@@ -71,7 +71,9 @@ const Game: FunctionComponent<Props> = ({
           ))}
         </ul>
       </div>
-      <button onClick={play}>Play</button>
+      <button disabled={playing !== session.id} onClick={play}>
+        {playing === session.id ? "Play" : "Not your turn"}
+      </button>
     </section>
   );
 };

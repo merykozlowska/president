@@ -11,9 +11,21 @@ import { Card, Deck } from "./cards";
 
 interface Session {
   ws: WebSocket;
+  id: string;
+}
+
+interface CommonPlayer {
+  id: string;
   username: string;
+  session: Session;
+}
+
+interface LobbyPlayer extends CommonPlayer {
   ready: boolean;
-  hand?: Card[];
+}
+
+interface GamePlayer extends CommonPlayer {
+  hand: Card[];
 }
 
 interface GameState {
@@ -21,15 +33,32 @@ interface GameState {
   pileTop: Card[];
 }
 
+enum State {
+  lobby,
+  playing,
+}
+
+interface LobbyRoomState {
+  state: State.lobby;
+  players: LobbyPlayer[];
+}
+
+interface PlayingRoomState {
+  state: State.playing;
+  players: GamePlayer[];
+  gameState: GameState;
+}
+
+type RoomState = LobbyRoomState | PlayingRoomState;
+
 const canHandleMessage = (message: unknown): message is IncomingMessage =>
   IncomingMessageType[(message as IncomingMessage).type] !== undefined;
 
 export class GameRoom {
   state: DurableObjectState;
-  sessions: Session[] = [];
-  gameState: GameState = {
-    playing: "",
-    pileTop: [],
+  roomState: RoomState = {
+    state: State.lobby,
+    players: [],
   };
 
   constructor(state: DurableObjectState) {
@@ -59,7 +88,7 @@ export class GameRoom {
 
   handleSession(ws: WebSocket): void {
     ws.accept();
-    const session: Session = { ws, username: "", ready: false };
+    const session: Session = { ws, id: "" };
     ws.addEventListener("message", async (msg) => {
       console.log("GOT MESSAGE 🎉", msg);
       try {
@@ -69,166 +98,229 @@ export class GameRoom {
         }
         this.handleMessage(data, session);
       } catch (e) {
-        console.error(`Error handling message ${msg.data}`);
+        console.error(`Error handling message ${msg.data}`, e);
       }
     });
   }
 
   handleMessage(message: IncomingMessage, session: Session): void {
     switch (message.type) {
-      case IncomingMessageType.joined:
+      case IncomingMessageType.joined: {
         const username = `${message.payload.name}`;
-        if (session.username) {
-          console.log(
-            `${session.username}: username already set, ignoring joined message with name ${username}`
-          );
+
+        if (this.roomState.state !== State.lobby) {
+          console.log(`${username} TRYING TO JOIN BUT NOT LOBBY`);
+          // todo reply with error
+          break;
         }
 
         session.ws.send(
           JSON.stringify({
             type: OutgoingMessageType.init,
             payload: {
-              players: Object.values(this.sessions)
-                .filter((s) => Boolean(s.username))
-                .map((s) => ({
-                  name: s.username,
-                  ready: s.ready,
-                })),
+              players: this.roomState.players.map((player) => ({
+                name: player.username,
+                ready: player.ready,
+              })),
             },
           })
         );
 
-        session.username = username;
-        this.sessions.push(session);
+        session.id = username;
+
+        this.roomState.players.push({
+          id: username,
+          username,
+          ready: false,
+          session,
+        });
 
         this.broadcast({
           type: OutgoingMessageType.joined,
           payload: { name: username },
         });
         break;
+      }
 
-      case IncomingMessageType.ready:
-        if (!session.username) {
+      case IncomingMessageType.ready: {
+        if (this.roomState.state !== State.lobby) {
+          console.log(`${session.id} ready but not lobby`);
+          // todo reply with error
           break;
         }
-        session.ready = Boolean(message.payload.ready);
+
+        const player = this.roomState.players.find(
+          ({ id }) => id === session.id
+        );
+        if (!player) {
+          console.log(`no player found for id: ${session.id}`);
+          break;
+        }
+        player.ready = true;
         this.broadcast({
           type: OutgoingMessageType.ready,
           payload: {
-            name: session.username,
+            name: player.username,
             ready: true,
           },
         });
-        if (this.sessions.every((s) => !s.username || s.ready)) {
+        if (this.roomState.players.every((p) => p.ready)) {
           this.startGame();
         }
         break;
+      }
 
-      case IncomingMessageType.play:
+      case IncomingMessageType.play: {
+        if (this.roomState.state !== State.playing) {
+          console.log(`${session.id} played but not playing`);
+          // todo reply with error
+          break;
+        }
+
         const played = message.payload.cards;
-        session.hand = session.hand!.filter(
+        const player = this.roomState.players.find(
+          ({ id }) => id === session.id
+        );
+        if (!player) {
+          break;
+        }
+
+        player.hand = player.hand.filter(
           (card) =>
             !played.some(
               (playedCard) =>
                 card.suit === playedCard.suit && card.rank === playedCard.rank
             )
         );
-        this.gameState.pileTop = played;
+        this.roomState.gameState.pileTop = played;
         this.broadcastTurnPlayed();
         break;
+      }
     }
   }
 
   broadcast(message: OutgoingMessage): void {
     const stringifiedMessage = JSON.stringify(message);
 
-    const disconnected: Session[] = [];
-    this.sessions.forEach((session) => {
-      if (!session.username) {
-        return;
-      }
-      console.log(`sending to ${session.username} ${stringifiedMessage}`);
+    const disconnected: CommonPlayer[] = [];
+    this.roomState.players.forEach((player) => {
+      console.log(`sending to ${player.session.id} ${stringifiedMessage}`);
       try {
-        session.ws.send(stringifiedMessage);
+        player.session.ws.send(stringifiedMessage);
       } catch (e) {
         console.log(e);
-        disconnected.push(session);
+        disconnected.push(player);
       }
     });
-    this.handleDisconnectedSessions(disconnected);
+    this.handleDisconnectedPlayers(disconnected);
   }
 
-  handleDisconnectedSessions(disconnectedSessions: Session[]): void {
-    if (!disconnectedSessions.length) {
+  handleDisconnectedPlayers(disconnectedPlayers: CommonPlayer[]): void {
+    if (!disconnectedPlayers.length) {
       return;
     }
-    this.sessions = this.sessions.filter(
-      (session) => !disconnectedSessions.includes(session)
+    // https://github.com/microsoft/TypeScript/issues/44373
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.roomState.players = (this.roomState.players as any[]).filter(
+      (player: CommonPlayer) => !disconnectedPlayers.includes(player)
     );
-    disconnectedSessions.forEach((session) => {
-      if (session.username) {
-        this.broadcast({
-          type: OutgoingMessageType.disconnected,
-          payload: {
-            name: session.username,
-          },
-        });
-      }
+    disconnectedPlayers.forEach((session) => {
+      this.broadcast({
+        type: OutgoingMessageType.disconnected,
+        payload: {
+          name: session.id,
+        },
+      });
     });
   }
 
-  getGameStateFor(playerName: string): GameStateForPlayer {
-    const playerSession = Object.values(this.sessions).find(
-      (session) => session.username === playerName
+  getGameStateFor(playerId: string): GameStateForPlayer | null {
+    if (this.roomState.state !== State.playing) {
+      return null;
+    }
+    const player = this.roomState.players.find(
+      (player) => player.id === playerId
     );
+    if (!player) {
+      return null;
+    }
     return {
-      playing: this.gameState.playing,
-      hand: playerSession!.hand!,
-      pileTop: this.gameState.pileTop,
-      players: Object.values(this.sessions).map((session) => ({
-        name: session.username!,
-        hand: { count: session.hand!.length },
+      playing: this.roomState.gameState.playing,
+      hand: player.hand,
+      pileTop: this.roomState.gameState.pileTop,
+      players: this.roomState.players.map((player) => ({
+        name: player.username,
+        hand: { count: player.hand.length },
       })),
     };
   }
 
   broadcastTurnPlayed(): void {
-    const disconnected: Session[] = [];
-    Object.values(this.sessions).forEach((session) => {
-      const message: TurnPlayedOutMessage = {
-        type: OutgoingMessageType.turnPlayed,
-        payload: { gameState: this.getGameStateFor(session.username!) },
-      };
-      try {
-        session.ws.send(JSON.stringify(message));
-      } catch (e) {
-        console.log(e);
-        disconnected.push(session);
+    const disconnected: CommonPlayer[] = [];
+    this.roomState.players.forEach((player) => {
+      const gameStateForPlayer = this.getGameStateFor(player.id);
+      if (gameStateForPlayer) {
+        const message: TurnPlayedOutMessage = {
+          type: OutgoingMessageType.turnPlayed,
+          payload: { gameState: gameStateForPlayer },
+        };
+        try {
+          player.session.ws.send(JSON.stringify(message));
+        } catch (e) {
+          console.log(e);
+          disconnected.push(player);
+        }
       }
     });
-    this.handleDisconnectedSessions(disconnected);
+    this.handleDisconnectedPlayers(disconnected);
   }
 
   startGame(): void {
     const deck = new Deck();
     deck.shuffle();
-    const numberOfPlayers = this.sessions.length;
+
+    const numberOfPlayers = this.roomState.players.length;
     const cardsPerPlayer = Math.ceil(deck.numberOfCards / numberOfPlayers);
-    this.sessions.forEach((session, idx) => {
+    const players: GamePlayer[] = this.roomState.players.map((player, idx) => {
       const oneLess =
         idx >= numberOfPlayers - (deck.numberOfCards % numberOfPlayers);
       const cards = deck.cards.slice(
         idx * cardsPerPlayer,
         (idx + 1) * cardsPerPlayer - +oneLess
       );
-      session.hand = cards;
-    });
-    this.sessions.forEach((session) => {
-      const message: StartGameOutMessage = {
-        type: OutgoingMessageType.startGame,
-        payload: { gameState: this.getGameStateFor(session.username!) },
+      return {
+        id: player.username,
+        username: player.username,
+        hand: cards,
+        session: player.session,
       };
-      session.ws.send(JSON.stringify(message));
     });
+
+    this.roomState = {
+      state: State.playing,
+      players,
+      gameState: {
+        playing: "",
+        pileTop: [],
+      },
+    };
+
+    const disconnected: CommonPlayer[] = [];
+    this.roomState.players.forEach((player) => {
+      const gameStateForPlayer = this.getGameStateFor(player.id);
+      if (gameStateForPlayer) {
+        const message: StartGameOutMessage = {
+          type: OutgoingMessageType.startGame,
+          payload: { gameState: gameStateForPlayer },
+        };
+        try {
+          player.session.ws.send(JSON.stringify(message));
+        } catch (e) {
+          console.log(e);
+          disconnected.push(player);
+        }
+      }
+    });
+    this.handleDisconnectedPlayers(disconnected);
   }
 }

@@ -48,6 +48,7 @@ const GameRoom: FunctionComponent = () => {
           players={state.players}
           hand={state.hand}
           pileTop={state.pileTop}
+          playing={state.playing}
         />
       )}
     </>

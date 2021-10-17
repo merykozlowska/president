@@ -8,9 +8,15 @@ interface Props {
   hand: Card[];
   pileTop: Card[];
   players: Player[];
+  playing: string;
 }
 
-const Game: FunctionComponent<Props> = ({ hand, pileTop, players }) => {
+const Game: FunctionComponent<Props> = ({
+  hand,
+  pileTop,
+  players,
+  playing,
+}) => {
   const { session } = useContext(SessionContext);
 
   const [selectedCards, setSelectedCards] = useState<boolean[]>(
@@ -34,7 +40,9 @@ const Game: FunctionComponent<Props> = ({ hand, pileTop, players }) => {
         players:{" "}
         <ul>
           {players.map((player) => (
-            <li key={player.id}>{`${player.name} - ${player.hand.count}`}</li>
+            <li key={player.id}>{`${player.id === playing ? "➡" : ""}${
+              player.name
+            } - ${player.hand.count}`}</li>
           ))}
         </ul>
       </div>

@@ -2,13 +2,15 @@ import { FunctionComponent } from "preact";
 import { useContext, useState } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
 import { Card } from "../cards";
+import { Player } from "../state";
 
 interface Props {
   hand: Card[];
   pileTop: Card[];
+  players: Player[];
 }
 
-const Game: FunctionComponent<Props> = ({ hand, pileTop }) => {
+const Game: FunctionComponent<Props> = ({ hand, pileTop, players }) => {
   const { session } = useContext(SessionContext);
 
   const [selectedCards, setSelectedCards] = useState<boolean[]>(
@@ -29,6 +31,14 @@ const Game: FunctionComponent<Props> = ({ hand, pileTop }) => {
   return (
     <section>
       <div>
+        players:{" "}
+        <ul>
+          {players.map((player) => (
+            <li key={player.id}>{`${player.name} - ${player.hand.count}`}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
         top of the pile:{" "}
         {pileTop.map((card) => (
           <span
@@ -38,16 +48,20 @@ const Game: FunctionComponent<Props> = ({ hand, pileTop }) => {
       </div>
       <div>
         hand:{" "}
-        {hand.map((card, idx) => (
-          <label key={`${card.rank}${card.suit}`}>
-            <input
-              type="checkbox"
-              checked={selectedCards[idx]}
-              onClick={() => selectCard(idx)}
-            />{" "}
-            {`${card.rank}${card.suit}`}
-          </label>
-        ))}
+        <ul>
+          {hand.map((card, idx) => (
+            <li key={`${card.rank}${card.suit}`}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedCards[idx]}
+                  onClick={() => selectCard(idx)}
+                />{" "}
+                {`${card.rank}${card.suit}`}
+              </label>
+            </li>
+          ))}
+        </ul>
       </div>
       <button onClick={play}>Play</button>
     </section>

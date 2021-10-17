@@ -7,7 +7,7 @@ import {
   StartGameOutMessage,
   TurnPlayedOutMessage,
 } from "./message";
-import { Card, cardsSortFn, Deck } from "./cards";
+import { Card, cardsCompare, Deck, ranksCompare } from "./cards";
 
 interface Session {
   ws: WebSocket;
@@ -189,6 +189,10 @@ export class GameRoom {
           // todo reply with error
           break;
         }
+        if (!this.validatePlayed(played, player)) {
+          // todo reply with error
+          break;
+        }
 
         player.hand = player.hand.filter(
           (card) =>
@@ -211,6 +215,45 @@ export class GameRoom {
         break;
       }
     }
+  }
+
+  validatePlayed(played: Card[], player: GamePlayer): boolean {
+    if (this.roomState.state !== State.playing) {
+      return false;
+    }
+
+    if (
+      !played.every((card) =>
+        player.hand.some(
+          (playedCard) =>
+            card.suit === playedCard.suit && card.rank === playedCard.rank
+        )
+      )
+    ) {
+      return false;
+    }
+
+    if (!played.length) {
+      return false;
+    }
+    if (!played.every((card) => card.rank === played[0].rank)) {
+      return false;
+    }
+
+    const pileTop = this.roomState.gameState.pileTop;
+    if (!pileTop.length) {
+      return true;
+    }
+    if (played.length !== pileTop.length) {
+      return false;
+    }
+    const playedRank = played[0].rank;
+    const pileTopRank = pileTop[0].rank;
+    if (ranksCompare(playedRank, pileTopRank) <= 0) {
+      return false;
+    }
+
+    return true;
   }
 
   broadcast(message: OutgoingMessage): void {
@@ -307,7 +350,7 @@ export class GameRoom {
       return {
         id: player.username,
         username: player.username,
-        hand: cards.sort(cardsSortFn),
+        hand: cards.sort(cardsCompare),
         session: player.session,
       };
     });

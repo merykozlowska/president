@@ -44,9 +44,12 @@ export class Deck {
   }
 }
 
-export const cardsSortFn = (a: Card, b: Card): number => {
+export const cardsCompare = (a: Card, b: Card): number => {
   if (a.rank === b.rank) {
     return suits.indexOf(a.suit) - suits.indexOf(b.suit);
   }
-  return ranks.indexOf(a.rank) - ranks.indexOf(b.rank);
+  return ranksCompare(a.rank, b.rank);
 };
+
+export const ranksCompare = (a: Rank, b: Rank): number =>
+  ranks.indexOf(a) - ranks.indexOf(b);

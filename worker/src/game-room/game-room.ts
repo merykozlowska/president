@@ -7,7 +7,7 @@ import {
   StartGameOutMessage,
   TurnPlayedOutMessage,
 } from "./message";
-import { Card, Deck } from "./cards";
+import { Card, cardsSortFn, Deck } from "./cards";
 
 interface Session {
   ws: WebSocket;
@@ -294,7 +294,7 @@ export class GameRoom {
       return {
         id: player.username,
         username: player.username,
-        hand: cards,
+        hand: cards.sort(cardsSortFn),
         session: player.session,
       };
     });

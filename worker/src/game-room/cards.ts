@@ -1,5 +1,4 @@
 const ranks = [
-  "2",
   "3",
   "4",
   "5",
@@ -12,6 +11,7 @@ const ranks = [
   "Q",
   "K",
   "A",
+  "2",
 ] as const;
 const suits = ["♣️", "♦️", "♥️", "♠️"] as const;
 
@@ -43,3 +43,10 @@ export class Deck {
     }
   }
 }
+
+export const cardsSortFn = (a: Card, b: Card): number => {
+  if (a.rank === b.rank) {
+    return suits.indexOf(a.suit) - suits.indexOf(b.suit);
+  }
+  return ranks.indexOf(a.rank) - ranks.indexOf(b.rank);
+};

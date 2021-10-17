@@ -11,7 +11,7 @@ import { Card, Deck } from "./cards";
 
 interface Session {
   ws: WebSocket;
-  username?: string;
+  username: string;
   ready: boolean;
   hand?: Card[];
 }
@@ -59,8 +59,7 @@ export class GameRoom {
 
   handleSession(ws: WebSocket): void {
     ws.accept();
-    const session = { ws, ready: false };
-    this.sessions.push(session);
+    const session: Session = { ws, username: "", ready: false };
     ws.addEventListener("message", async (msg) => {
       console.log("GOT MESSAGE 🎉", msg);
       try {
@@ -84,11 +83,12 @@ export class GameRoom {
             `${session.username}: username already set, ignoring joined message with name ${username}`
           );
         }
+
         session.ws.send(
           JSON.stringify({
             type: OutgoingMessageType.init,
             payload: {
-              players: this.sessions
+              players: Object.values(this.sessions)
                 .filter((s) => Boolean(s.username))
                 .map((s) => ({
                   name: s.username,
@@ -97,12 +97,16 @@ export class GameRoom {
             },
           })
         );
+
         session.username = username;
+        this.sessions.push(session);
+
         this.broadcast({
           type: OutgoingMessageType.joined,
           payload: { name: username },
         });
         break;
+
       case IncomingMessageType.ready:
         if (!session.username) {
           break;
@@ -119,6 +123,7 @@ export class GameRoom {
           this.startGame();
         }
         break;
+
       case IncomingMessageType.play:
         const played = message.payload.cards;
         session.hand = session.hand!.filter(
@@ -173,14 +178,14 @@ export class GameRoom {
   }
 
   getGameStateFor(playerName: string): GameStateForPlayer {
-    const playerSession = this.sessions.find(
+    const playerSession = Object.values(this.sessions).find(
       (session) => session.username === playerName
     );
     return {
       playing: this.gameState.playing,
       hand: playerSession!.hand!,
       pileTop: this.gameState.pileTop,
-      players: this.sessions.map((session) => ({
+      players: Object.values(this.sessions).map((session) => ({
         name: session.username!,
         hand: { count: session.hand!.length },
       })),
@@ -189,7 +194,7 @@ export class GameRoom {
 
   broadcastTurnPlayed(): void {
     const disconnected: Session[] = [];
-    this.sessions.forEach((session) => {
+    Object.values(this.sessions).forEach((session) => {
       const message: TurnPlayedOutMessage = {
         type: OutgoingMessageType.turnPlayed,
         payload: { gameState: this.getGameStateFor(session.username!) },

@@ -16,11 +16,12 @@ const GameRoom: FunctionComponent = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const connect = () => {
+  const connect = (username: string) => {
     const ws = new WebSocket(`${import.meta.env.WS_URL}/game/${id}/websocket`);
 
     ws.addEventListener("open", () => {
       updateSession({ ws });
+      ws.send(JSON.stringify({ type: "joined", payload: { name: username } }));
     });
 
     ws.addEventListener("message", (event) => {
@@ -37,14 +38,10 @@ const GameRoom: FunctionComponent = () => {
     });
   };
 
-  useEffect(() => {
-    connect();
-  }, []);
-
   return (
     <>
       {state.gameState === GameState.waiting && (
-        <Lobby players={state.players} />
+        <Lobby players={state.players} connect={connect} />
       )}
       {state.gameState === GameState.started && (
         <Game hand={state.hand} pileTop={state.pileTop} />

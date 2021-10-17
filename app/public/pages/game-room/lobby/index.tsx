@@ -5,18 +5,17 @@ import { LobbyPlayer } from "../state";
 
 interface Props {
   players: LobbyPlayer[];
+  connect: (username: string) => void;
 }
 
-const Lobby: FunctionComponent<Props> = ({ players = [] }) => {
+const Lobby: FunctionComponent<Props> = ({ players = [], connect }) => {
   const { session, updateSession } = useContext(SessionContext);
 
   const updateUsername = (e) => {
     e.preventDefault();
     const username = e.target["username"].value;
     updateSession({ username });
-    session.ws.send(
-      JSON.stringify({ type: "joined", payload: { name: username } })
-    );
+    connect(username);
   };
 
   const sendReady = () => {

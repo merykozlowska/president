@@ -20,7 +20,7 @@ export const App: FunctionComponent = () => {
   const [session, setSession] = useState<Session>();
 
   const updateSession = (sessionData: Partial<Session>) => {
-    setSession({ ...session, ...sessionData });
+    setSession((session) => ({ ...session, ...sessionData }));
   };
 
   return (

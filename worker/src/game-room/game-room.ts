@@ -197,12 +197,16 @@ export class GameRoom {
                 card.suit === playedCard.suit && card.rank === playedCard.rank
             )
         );
-        this.roomState.gameState.pileTop = played;
-        this.roomState.gameState.playing =
-          this.roomState.players[
-            (this.roomState.players.indexOf(player) + 1) %
-              this.roomState.players.length
-          ].id;
+        if (played.every((card) => card.rank === "2")) {
+          this.roomState.gameState.pileTop = [];
+        } else {
+          this.roomState.gameState.pileTop = played;
+          this.roomState.gameState.playing =
+            this.roomState.players[
+              (this.roomState.players.indexOf(player) + 1) %
+                this.roomState.players.length
+            ].id;
+        }
         this.broadcastTurnPlayed();
         break;
       }

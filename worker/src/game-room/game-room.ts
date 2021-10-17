@@ -126,18 +126,18 @@ export class GameRoom {
           })
         );
 
-        session.id = username;
-
-        this.roomState.players.push({
+        const player = {
           id: username,
           username,
           ready: false,
           session,
-        });
+        };
+        session.id = player.id;
+        this.roomState.players.push(player);
 
         this.broadcast({
           type: OutgoingMessageType.joined,
-          payload: { name: username },
+          payload: { id: player.id, name: player.username },
         });
         break;
       }
@@ -160,6 +160,7 @@ export class GameRoom {
         this.broadcast({
           type: OutgoingMessageType.ready,
           payload: {
+            id: player.id,
             name: player.username,
             ready: true,
           },
@@ -224,11 +225,12 @@ export class GameRoom {
     this.roomState.players = (this.roomState.players as any[]).filter(
       (player: CommonPlayer) => !disconnectedPlayers.includes(player)
     );
-    disconnectedPlayers.forEach((session) => {
+    disconnectedPlayers.forEach((player) => {
       this.broadcast({
         type: OutgoingMessageType.disconnected,
         payload: {
-          name: session.id,
+          id: player.id,
+          name: player.username,
         },
       });
     });
@@ -249,6 +251,7 @@ export class GameRoom {
       hand: player.hand,
       pileTop: this.roomState.gameState.pileTop,
       players: this.roomState.players.map((player) => ({
+        id: player.id,
         name: player.username,
         hand: { count: player.hand.length },
       })),

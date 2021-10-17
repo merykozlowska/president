@@ -1,6 +1,6 @@
 import { FunctionComponent } from "preact";
 import { useRoute } from "preact-iso";
-import { useContext, useEffect, useReducer } from "preact/hooks";
+import { useContext, useReducer } from "preact/hooks";
 import { SessionContext } from "../../components/session-context";
 import { Game } from "./game";
 import Lobby from "./lobby";
@@ -20,7 +20,7 @@ const GameRoom: FunctionComponent = () => {
     const ws = new WebSocket(`${import.meta.env.WS_URL}/game/${id}/websocket`);
 
     ws.addEventListener("open", () => {
-      updateSession({ ws });
+      updateSession({ ws, username });
       ws.send(JSON.stringify({ type: "joined", payload: { name: username } }));
     });
 

@@ -3,11 +3,13 @@ import { Card } from "./cards";
 
 export interface LobbyPlayer {
   name: string;
+  id: string;
   ready: boolean;
 }
 
 export interface Player {
   name: string;
+  id: string;
   hand: { count: number };
 }
 
@@ -45,6 +47,7 @@ export const reducer = (state: State, message: IncomingMessage): State => {
       return {
         ...state,
         players: message.payload.players.map((player) => ({
+          id: player.id,
           name: player.name,
           ready: player.ready,
         })),
@@ -54,7 +57,11 @@ export const reducer = (state: State, message: IncomingMessage): State => {
       if (state.gameState !== GameState.waiting) {
         return state;
       }
-      const player = { name: message.payload.name, ready: false };
+      const player = {
+        id: message.payload.id,
+        name: message.payload.name,
+        ready: false,
+      };
       return {
         ...state,
         players: [...state.players, player],

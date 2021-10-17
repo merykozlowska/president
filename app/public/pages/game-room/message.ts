@@ -12,13 +12,14 @@ export enum IncomingMessageType {
 interface InitInMessage {
   type: IncomingMessageType.init;
   payload: {
-    players: { name: string; ready: boolean }[];
+    players: { id: string; name: string; ready: boolean }[];
   };
 }
 
 interface JoinedInMessage {
   type: IncomingMessageType.joined;
   payload: {
+    id: string;
     name: string;
   };
 }
@@ -26,6 +27,7 @@ interface JoinedInMessage {
 interface DisconnectedInMessage {
   type: IncomingMessageType.disconnected;
   payload: {
+    id: string;
     name: string;
   };
 }
@@ -33,13 +35,14 @@ interface DisconnectedInMessage {
 interface ReadyInMessage {
   type: IncomingMessageType.ready;
   payload: {
+    id: string;
     name: string;
     ready: boolean;
   };
 }
 
 interface GameState {
-  players: { name: string; hand: { count: number } }[];
+  players: { id: string; name: string; hand: { count: number } }[];
   hand: Card[];
   pileTop: Card[];
   playing: string;

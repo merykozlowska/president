@@ -9,12 +9,11 @@ interface Props {
 }
 
 const Lobby: FunctionComponent<Props> = ({ players = [], connect }) => {
-  const { session, updateSession } = useContext(SessionContext);
+  const { session } = useContext(SessionContext);
 
   const updateUsername = (e) => {
     e.preventDefault();
     const username = e.target["username"].value;
-    updateSession({ username });
     connect(username);
   };
 
@@ -35,7 +34,7 @@ const Lobby: FunctionComponent<Props> = ({ players = [], connect }) => {
       )}
       <ul>
         {players.map((player) => (
-          <li key={player.name}>
+          <li key={player.id}>
             {player.ready ? "✅" : "❌"} {player.name}
           </li>
         ))}

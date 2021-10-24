@@ -178,8 +178,6 @@ export class GameRoom {
 
       case IncomingMessageType.play: {
         if (this.roomState.state !== State.playing) {
-          console.log(`${session.id} played but not playing`);
-          // todo reply with error
           break;
         }
 
@@ -191,11 +189,9 @@ export class GameRoom {
           break;
         }
         if (player.id !== this.roomState.gameState.playing) {
-          // todo reply with error
           break;
         }
         if (!this.validatePlayed(played, player)) {
-          // todo reply with error
           break;
         }
 
@@ -209,8 +205,16 @@ export class GameRoom {
         );
 
         if (!player.hand.length) {
-          const nextRank = this.roomState.gameState.playerRanksLeft.pop();
+          let nextRank;
+          if (played.some((card) => card.rank === "2")) {
+            nextRank = this.roomState.gameState.playerRanksLeft.shift();
+          } else {
+            nextRank = this.roomState.gameState.playerRanksLeft.pop();
+          }
           if (!nextRank) {
+            console.log(
+              JSON.stringify(this.roomState.gameState.playerRanksLeft)
+            );
             throw new Error("No ranks left???");
           }
           player.rank = nextRank;
@@ -219,7 +223,14 @@ export class GameRoom {
             (p) => p.rank == null
           );
           if (playersWithoutRank.length === 1) {
-            playersWithoutRank[0].rank = PlayerRank.aHole;
+            const lastRank = this.roomState.gameState.playerRanksLeft.shift();
+            if (!lastRank) {
+              console.log(
+                JSON.stringify(this.roomState.gameState.playerRanksLeft)
+              );
+              throw new Error("No ranks left???");
+            }
+            playersWithoutRank[0].rank = lastRank;
             this.broadcastTurnPlayed({ player });
             this.finishGame();
             break;
@@ -243,8 +254,6 @@ export class GameRoom {
 
       case IncomingMessageType.pass: {
         if (this.roomState.state !== State.playing) {
-          console.log(`${session.id} passed but not playing`);
-          // todo reply with error
           break;
         }
 
@@ -255,11 +264,9 @@ export class GameRoom {
           break;
         }
         if (player.id !== this.roomState.gameState.playing) {
-          // todo reply with error
           break;
         }
         if (this.roomState.gameState.hasToPlay3Club) {
-          // todo reply with error
           break;
         }
 
@@ -470,6 +477,7 @@ export class GameRoom {
         pileTop: [],
         hasToPlay3Club: true,
         playerRanksLeft: [
+          PlayerRank.aHole,
           ...new Array(Math.max(numberOfPlayers - 3, 0)).fill(PlayerRank.none),
           ...(numberOfPlayers >= 3 ? [PlayerRank.vicePresident] : []),
           PlayerRank.president,

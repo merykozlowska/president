@@ -1,0 +1,102 @@
+.table {
+    background-color: green;
+    --card-height: 7rem;
+    --card-width: 5rem;
+}
+
+.pile {
+    display: flex;
+    height: var(--card-height);
+    padding: 1rem 1rem;
+    overflow-x: scroll;
+}
+
+.hand {
+    display: flex;
+    overflow-x: scroll;
+    height: var(--card-height);
+    padding: 1rem 1rem
+}
+
+.hand label {
+    position: relative;
+}
+
+.card {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 6px;
+    width: var(--card-width);
+    height: var(--card-height);
+    transition: margin-top .1s;
+    user-select: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.card[data-suit='♦'],
+.card[data-suit='♥'] {
+    color: red;
+}
+
+.card[data-suit='♣'],
+.card[data-suit='♠'] {
+    color: black;
+}
+
+.card::before,
+.card::after {
+    position: absolute;
+    content: attr(data-rank) "\a" attr(data-suit);
+    white-space: pre;
+    font-size: 1rem;
+    text-align: center;
+    padding: 4px;
+    line-height: 1;
+    font-weight: bold;
+}
+
+.card::before {
+    top: 0;
+    left: 0;
+}
+
+.card::after {
+    bottom: 0;
+    right: 0;
+    transform: rotate(180deg);
+}
+
+.hand .card,
+.pile .card {
+    margin-left: calc(var(--card-width) * -0.66);
+}
+
+.hand li:first-child .card,
+.pile li:first-child .card {
+    margin-left: 0;
+}
+
+.hand .cardCheckbox {
+    position: absolute;
+    opacity: 0;
+}
+
+.hand .cardCheckbox:focus + .card {
+    background-color: lightyellow;
+}
+
+.hand .cardCheckbox:not(:disabled):not(:checked) + .card:hover {
+    margin-top: calc(var(--card-height) * -0.05);
+}
+
+.hand .cardCheckbox:checked + .card {
+    margin-top: calc(var(--card-height) * -0.1);
+}
+
+.hand .cardCheckbox:disabled + .card {
+    background-color: lightgray;
+}

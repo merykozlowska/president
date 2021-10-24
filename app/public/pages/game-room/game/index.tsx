@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "preact/hooks";
 import { SessionContext } from "../../../components/session-context";
 import { Card, ranksCompare } from "../cards";
 import { Player } from "../state";
+import styles from "./style.module.css";
 
 interface Props {
   hand: Card[];
@@ -88,8 +89,8 @@ const Game: FunctionComponent<Props> = ({
   };
 
   return (
-    <section>
-      <div>
+    <main>
+      <section>
         players:{" "}
         <ul>
           {players.map((player) => (
@@ -100,46 +101,56 @@ const Game: FunctionComponent<Props> = ({
             }`}</li>
           ))}
         </ul>
-      </div>
-      <div>
-        top of the pile:{" "}
-        {pileTop.map((card) => (
-          <span
-            key={`${card.rank}${card.suit}`}
-          >{`${card.rank}${card.suit}`}</span>
-        ))}
-      </div>
-      <div>
-        hand:{" "}
-        <ul>
-          {hand.map((card) => (
+      </section>
+
+      <section class={styles.table}>
+        <ul class={styles.pile}>
+          {pileTop.map((card) => (
             <li key={`${card.rank}${card.suit}`}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={selectedCards.has(card)}
-                  onClick={() => toggleCardSelection(card)}
-                  disabled={!canBePlayed(card)}
-                />{" "}
-                {`${card.rank}${card.suit}`}
-              </label>
+              <span
+                data-suit={card.suit}
+                data-rank={card.rank}
+                class={styles.card}
+              >{`${card.suit}`}</span>
             </li>
           ))}
         </ul>
-      </div>
-      <button
-        disabled={playing !== session.id || !selectedCards.size}
-        onClick={play}
-      >
-        {playing === session.id ? "Play" : "Not your turn"}
-      </button>
-      <button
-        disabled={playing !== session.id || hasToPlay3Club}
-        onClick={pass}
-      >
-        {playing === session.id ? "Pass" : "Not your turn"}
-      </button>
-    </section>
+        <div>
+          <ul class={styles.hand}>
+            {hand.map((card) => (
+              <li key={`${card.rank}${card.suit}`}>
+                <label>
+                  <input
+                    class={styles.cardCheckbox}
+                    type="checkbox"
+                    checked={selectedCards.has(card)}
+                    onClick={() => toggleCardSelection(card)}
+                    disabled={!canBePlayed(card)}
+                  />{" "}
+                  <span
+                    data-suit={card.suit}
+                    data-rank={card.rank}
+                    class={styles.card}
+                  >{`${card.suit}`}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+          <button
+            disabled={playing !== session.id || !selectedCards.size}
+            onClick={play}
+          >
+            {playing === session.id ? "Play" : "Not your turn"}
+          </button>
+          <button
+            disabled={playing !== session.id || hasToPlay3Club}
+            onClick={pass}
+          >
+            {playing === session.id ? "Pass" : "Not your turn"}
+          </button>
+        </div>
+      </section>
+    </main>
   );
 };
 

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"scripts": {
-		"start": "wmr",
+		"dev": "wmr",
 		"build": "wmr build --prerender",
 		"serve": "wmr serve",
 		"format": "eslint --fix 'public/**/*.{ts,tsx}'"

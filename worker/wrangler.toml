@@ -3,6 +3,7 @@ type = "javascript"
 account_id = "14f62828e315e175991803fb1e5de45d"
 workers_dev = true
 compatibility_date = "2021-10-26"
+usage_model = "bundled"
 
 [build]
 command = "npm install && npm run build"

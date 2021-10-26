@@ -1,9 +1,8 @@
-name = "worker"
+name = "president"
 type = "javascript"
-account_id = ""
+account_id = "14f62828e315e175991803fb1e5de45d"
 workers_dev = true
-route = ""
-zone_id = ""
+compatibility_date = "2021-10-26"
 
 [build]
 command = "npm install && npm run build"
@@ -13,3 +12,7 @@ main = "./index.mjs"
 
 [durable_objects]
 bindings = [{name = "rooms", class_name = "GameRoom"}]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["GameRoom"]

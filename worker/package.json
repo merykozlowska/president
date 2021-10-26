@@ -20,6 +20,7 @@
   "dependencies": {},
   "devDependencies": {
     "@cloudflare/workers-types": "cloudflare/workers-types#auto-generated",
+    "@cloudflare/wrangler": "^1.19.4",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.1.0",
     "@rollup/plugin-typescript": "^8.2.1",

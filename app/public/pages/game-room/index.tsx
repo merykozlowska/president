@@ -1,18 +1,23 @@
 import { FunctionComponent } from "preact";
 import { useRoute } from "preact-iso";
-import { useContext, useReducer } from "preact/hooks";
-import { SessionContext } from "../../components/session-context";
+import { useReducer, useState } from "preact/hooks";
+import { Session } from "./session";
 import { Game } from "./game";
 import Lobby from "./lobby";
 import { canHandleMessage } from "./message";
 import { GameState, initialState, reducer } from "./state";
+import { Header } from "./components/header";
 
 const GameRoom: FunctionComponent = () => {
   const {
     params: { id },
   } = useRoute();
 
-  const { updateSession } = useContext(SessionContext);
+  const [session, setSession] = useState<Session>();
+
+  const updateSession = (sessionData: Partial<Session>) => {
+    setSession((session) => ({ ...session, ...sessionData }));
+  };
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -40,18 +45,22 @@ const GameRoom: FunctionComponent = () => {
 
   return (
     <>
-      {state.gameState === GameState.waiting && (
-        <Lobby players={state.players} connect={connect} />
-      )}
-      {state.gameState === GameState.started && (
-        <Game
-          players={state.players}
-          hand={state.hand}
-          pileTop={state.pileTop}
-          playing={state.playing}
-          hasToPlay3Club={state.hasToPlay3Club}
-        />
-      )}
+      <Header />
+      <main>
+        {state.gameState === GameState.waiting && (
+          <Lobby players={state.players} connect={connect} session={session} />
+        )}
+        {state.gameState === GameState.started && (
+          <Game
+            players={state.players}
+            hand={state.hand}
+            pileTop={state.pileTop}
+            playing={state.playing}
+            hasToPlay3Club={state.hasToPlay3Club}
+            session={session}
+          />
+        )}
+      </main>
     </>
   );
 };

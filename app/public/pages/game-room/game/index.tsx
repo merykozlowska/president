@@ -1,6 +1,6 @@
 import { FunctionComponent } from "preact";
-import { useContext, useEffect, useState } from "preact/hooks";
-import { SessionContext } from "../../../components/session-context";
+import { useEffect, useState } from "preact/hooks";
+import { Session } from "../session";
 import { Card, ranksCompare } from "../cards";
 import { Player } from "../state";
 import styles from "./style.module.css";
@@ -11,6 +11,7 @@ interface Props {
   players: Player[];
   playing: string;
   hasToPlay3Club: boolean;
+  session: Session;
 }
 
 const Game: FunctionComponent<Props> = ({
@@ -19,9 +20,8 @@ const Game: FunctionComponent<Props> = ({
   players,
   playing,
   hasToPlay3Club,
+  session,
 }) => {
-  const { session } = useContext(SessionContext);
-
   const [selectedCards, setSelectedCards] = useState<Set<Card>>(new Set());
 
   const play = () => {
@@ -89,7 +89,7 @@ const Game: FunctionComponent<Props> = ({
   };
 
   return (
-    <main>
+    <>
       <section>
         players:{" "}
         <ul>
@@ -150,7 +150,7 @@ const Game: FunctionComponent<Props> = ({
           </button>
         </div>
       </section>
-    </main>
+    </>
   );
 };
 

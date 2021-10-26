@@ -1,19 +1,28 @@
 import { FunctionComponent } from "preact";
-import { useContext } from "preact/hooks";
-import { SessionContext } from "../../../components/session-context";
+import { useState } from "preact/hooks";
+import { Session } from "../session";
 import { LobbyPlayer } from "../state";
+import styles from "./style.module.css";
 
 interface Props {
   players: LobbyPlayer[];
   connect: (username: string) => void;
+  session: Session;
 }
 
-const Lobby: FunctionComponent<Props> = ({ players = [], connect }) => {
-  const { session } = useContext(SessionContext);
+const Lobby: FunctionComponent<Props> = ({
+  players = [],
+  connect,
+  session,
+}) => {
+  const [ready, setReady] = useState<boolean>(false);
 
   const updateUsername = (e) => {
     e.preventDefault();
     const username = e.target["username"].value;
+    if (!username) {
+      return;
+    }
     connect(username);
   };
 
@@ -21,25 +30,31 @@ const Lobby: FunctionComponent<Props> = ({ players = [], connect }) => {
     session.ws.send(
       JSON.stringify({ type: "ready", payload: { ready: true } })
     );
+    setReady(true);
   };
 
   return (
-    <section>
+    <section class={styles.lobby}>
       {!session?.username && (
-        <form onSubmit={updateUsername}>
+        <form onSubmit={updateUsername} class={styles.form}>
           <label htmlFor="username">Username</label>
-          <input id="username" />
-          <button>✅</button>
+          <input id="username" type="text" />
+          <button>Join</button>
         </form>
       )}
-      <ul>
+      <ul class={styles.players}>
         {players.map((player) => (
-          <li key={player.id}>
-            {player.ready ? "✅" : "❌"} {player.name}
+          <li
+            key={player.id}
+            class={`${styles.player} ${player.ready ? styles.ready : ""}`}
+          >
+            {player.name}
           </li>
         ))}
       </ul>
-      <button onClick={sendReady}>Ready!</button>
+      {session?.username && !ready && (
+        <button onClick={sendReady}>Ready!</button>
+      )}
     </section>
   );
 };

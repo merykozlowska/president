@@ -1,0 +1,30 @@
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.lobby {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    max-width: calc(100% - 2rem);
+}
+
+.players {
+    flex: 1 0 auto;
+}
+
+.player {
+
+}
+
+.player::before {
+    content: '❌';
+}
+
+.player.ready {
+}
+
+.player.ready::before {
+    content: '✅';
+}

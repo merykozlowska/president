@@ -1,30 +1,50 @@
 .form {
+    flex: 1 0 0;
     display: flex;
     flex-direction: column;
+    max-width: calc(100% - 2rem);
+    min-width: 50%;
+    padding: 3rem;
+}
+
+.form > label {
+    font-size: 1.25rem;
+    padding: 0 1.5em;
+}
+
+.form > button {
+    margin-top: 1rem;
 }
 
 .lobby {
+    flex: 1 0 0;
     display: flex;
     flex-direction: column;
-    margin: auto;
+    align-items: center;
     max-width: calc(100% - 2rem);
+    min-width: 50%;
 }
 
 .players {
     flex: 1 0 auto;
+    font-size: 1.25rem;
+    width: 100%;
 }
 
 .player {
-
-}
-
-.player::before {
-    content: '❌';
+    padding: .25em 0;
+    display: flex;
+    align-items: center;
+    min-height: 2em;
 }
 
 .player.ready {
 }
 
-.player.ready::before {
-    content: '✅';
+.player.ready::after {
+    content: '✓';
+}
+
+.readyButton {
+    margin: 1rem 0;
 }

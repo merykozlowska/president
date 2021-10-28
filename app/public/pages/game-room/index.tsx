@@ -7,6 +7,7 @@ import Lobby from "./lobby";
 import { canHandleMessage } from "./message";
 import { GameState, initialState, reducer } from "./state";
 import { Header } from "./components/header";
+import styles from "./style.module.css";
 
 const GameRoom: FunctionComponent = () => {
   const {
@@ -46,7 +47,7 @@ const GameRoom: FunctionComponent = () => {
   return (
     <>
       <Header />
-      <main>
+      <main class={styles.game}>
         {state.gameState === GameState.waiting && (
           <Lobby players={state.players} connect={connect} session={session} />
         )}

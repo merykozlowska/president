@@ -33,15 +33,14 @@ const Lobby: FunctionComponent<Props> = ({
     setReady(true);
   };
 
-  return (
-    <section class={styles.lobby}>
-      {!session?.username && (
-        <form onSubmit={updateUsername} class={styles.form}>
-          <label htmlFor="username">Username</label>
-          <input id="username" type="text" />
-          <button>Join</button>
-        </form>
-      )}
+  return !session?.username ? (
+    <form onSubmit={updateUsername} class={styles.form}>
+      <label htmlFor="username">Username</label>
+      <input id="username" type="text" />
+      <button>Join</button>
+    </form>
+  ) : (
+    <section className={styles.lobby}>
       <ul class={styles.players}>
         {players.map((player) => (
           <li
@@ -52,8 +51,10 @@ const Lobby: FunctionComponent<Props> = ({
           </li>
         ))}
       </ul>
-      {session?.username && !ready && (
-        <button onClick={sendReady}>Ready!</button>
+      {!ready && (
+        <button onClick={sendReady} class={styles.readyButton}>
+          Ready!
+        </button>
       )}
     </section>
   );

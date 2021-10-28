@@ -1,5 +1,5 @@
 import { FunctionComponent } from "preact";
-import styles from "./style.module.css";
+import styles from "./header.module.css";
 
 export const Header: FunctionComponent = () => {
   return (

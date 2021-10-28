@@ -1,4 +1,7 @@
 .game {
-	background: #f6f6f6;
-	color: #333;
+	flex: 1 0 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }

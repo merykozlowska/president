@@ -1,6 +1,6 @@
-import styles from "./style.module.css";
 import { FunctionComponent } from "preact";
 import { useLocation } from "preact-iso";
+import styles from "./style.module.css";
 
 const Home: FunctionComponent = () => {
   const { route } = useLocation();
@@ -16,9 +16,15 @@ const Home: FunctionComponent = () => {
   };
 
   return (
-    <section class={styles.home}>
-      <button onClick={handleCreate}>Create new game</button>
-    </section>
+    <main class={styles.homeContainer}>
+      <section class={styles.home}>
+        <img src="/assets/clubs.svg" alt="" class={styles.logo} />
+        <button onClick={handleCreate}>New game</button>
+        <a href="/rules" target="_blank" class={styles.rulesLink}>
+          Rules
+        </a>
+      </section>
+    </main>
   );
 };
 

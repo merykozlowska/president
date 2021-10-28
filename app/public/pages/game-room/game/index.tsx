@@ -90,8 +90,7 @@ const Game: FunctionComponent<Props> = ({
 
   return (
     <>
-      <section>
-        players:{" "}
+      <section class={styles.players}>
         <ul>
           {players.map((player) => (
             <li key={player.id}>{`${player.id === playing ? "➡" : ""}${
@@ -115,27 +114,27 @@ const Game: FunctionComponent<Props> = ({
             </li>
           ))}
         </ul>
-        <div>
-          <ul class={styles.hand}>
-            {hand.map((card) => (
-              <li key={`${card.rank}${card.suit}`}>
-                <label>
-                  <input
-                    class={styles.cardCheckbox}
-                    type="checkbox"
-                    checked={selectedCards.has(card)}
-                    onClick={() => toggleCardSelection(card)}
-                    disabled={!canBePlayed(card)}
-                  />{" "}
-                  <span
-                    data-suit={card.suit}
-                    data-rank={card.rank}
-                    class={styles.card}
-                  >{`${card.suit}`}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
+        <ul class={styles.hand}>
+          {hand.map((card) => (
+            <li key={`${card.rank}${card.suit}`}>
+              <label>
+                <input
+                  class={styles.cardCheckbox}
+                  type="checkbox"
+                  checked={selectedCards.has(card)}
+                  onClick={() => toggleCardSelection(card)}
+                  disabled={!canBePlayed(card)}
+                />{" "}
+                <span
+                  data-suit={card.suit}
+                  data-rank={card.rank}
+                  class={styles.card}
+                >{`${card.suit}`}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+        <div class={styles.buttonsContainer}>
           <button
             disabled={playing !== session.id || !selectedCards.size}
             onClick={play}

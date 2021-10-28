@@ -1,21 +1,22 @@
 .table {
-    background-color: green;
+    max-width: 100%;
     --card-height: 7rem;
     --card-width: 5rem;
 }
 
 .pile {
     display: flex;
-    height: var(--card-height);
-    padding: 1rem 1rem;
+    justify-content: center;
     overflow-x: scroll;
+    height: var(--card-height);
+    padding: 1rem;
 }
 
 .hand {
     display: flex;
     overflow-x: scroll;
     height: var(--card-height);
-    padding: 1rem 1rem
+    padding: 1rem;
 }
 
 .hand label {
@@ -99,4 +100,19 @@
 
 .hand .cardCheckbox:disabled + .card {
     background-color: lightgray;
+}
+
+.players {
+    flex: 1 0 0;
+}
+
+.players > ul > li {
+    padding: 1rem;
+}
+
+.buttonsContainer {
+    flex: 0 0 0;
+    display: flex;
+    justify-content: space-evenly;
+    padding-bottom: 1rem;
 }

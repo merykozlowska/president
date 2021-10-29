@@ -139,13 +139,13 @@ const Game: FunctionComponent<Props> = ({
             disabled={playing !== session.id || !selectedCards.size}
             onClick={play}
           >
-            {playing === session.id ? "Play" : "Not your turn"}
+            Play
           </button>
           <button
             disabled={playing !== session.id || hasToPlay3Club}
             onClick={pass}
           >
-            {playing === session.id ? "Pass" : "Not your turn"}
+            Pass
           </button>
         </div>
       </section>

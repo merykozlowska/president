@@ -24,14 +24,21 @@ button {
 	border-radius: 4px;
 	padding: .75em 1.5em;
 	background: none;
+	-webkit-tap-highlight-color: transparent;
 	color: var(--text-color);
 	font-size: 1.25rem;
 	font-weight: bold;
 	text-transform: uppercase;
+	cursor: pointer;
 }
 
 button:disabled {
 	opacity: .7;
+	cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+	filter: drop-shadow(0 0 .75em var(--text-color));
 }
 
 ul {

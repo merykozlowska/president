@@ -1,5 +1,6 @@
 import { FunctionComponent } from "preact";
 import { useLocation } from "preact-iso";
+import { Logo } from "../components/logo";
 import styles from "./style.module.css";
 
 const Home: FunctionComponent = () => {
@@ -18,7 +19,7 @@ const Home: FunctionComponent = () => {
   return (
     <main class={styles.homeContainer}>
       <section class={styles.home}>
-        <img src="/assets/clubs.svg" alt="" class={styles.logo} />
+        <Logo className={styles.logo} />
         <button onClick={handleCreate}>New game</button>
         <a href="/rules" target="_blank" class={styles.rulesLink}>
           Rules

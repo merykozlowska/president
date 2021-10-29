@@ -34,11 +34,13 @@ const Lobby: FunctionComponent<Props> = ({
   };
 
   return !session?.username ? (
-    <form onSubmit={updateUsername} class={styles.form}>
-      <label htmlFor="username">Username</label>
-      <input id="username" type="text" />
-      <button>Join</button>
-    </form>
+    <section>
+      <form onSubmit={updateUsername} class={styles.form}>
+        <label htmlFor="username">Username</label>
+        <input id="username" type="text" />
+        <button>Join</button>
+      </form>
+    </section>
   ) : (
     <section className={styles.lobby}>
       <ul class={styles.players}>
@@ -52,9 +54,11 @@ const Lobby: FunctionComponent<Props> = ({
         ))}
       </ul>
       {!ready && (
-        <button onClick={sendReady} class={styles.readyButton}>
-          Ready!
-        </button>
+        <div class={styles.readyButtonContainer}>
+          <button onClick={sendReady} class={styles.readyButton}>
+            Ready!
+          </button>
+        </div>
       )}
     </section>
   );

@@ -3,17 +3,17 @@
     display: flex;
     flex-direction: column;
     max-width: calc(100% - 2rem);
-    min-width: 50%;
     padding: 3rem;
 }
 
 .form > label {
     font-size: 1.25rem;
     padding: 0 1.5em;
+    margin-bottom: .5rem;
 }
 
 .form > button {
-    margin-top: 1rem;
+    margin-top: 2rem;
 }
 
 .lobby {
@@ -26,7 +26,7 @@
 }
 
 .players {
-    flex: 1 0 auto;
+    flex: 1 0 75%;
     font-size: 1.25rem;
     width: 100%;
 }
@@ -45,6 +45,7 @@
     content: '✓';
 }
 
-.readyButton {
-    margin: 1rem 0;
+.readyButtonContainer {
+    flex: 0 1 25%;
+    padding: 1rem 0;
 }

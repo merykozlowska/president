@@ -1,26 +1,28 @@
 .header {
     display: flex;
     align-items: center;
-    background: #ddd;
+    background: rgb(66,78,65);
+    background: linear-gradient(60deg, rgba(66,78,65,.5) 0%, rgba(170,233,231,.5) 35%, rgba(70,59,98,.5) 100%);
 }
 
 .header > nav {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     font-size: 1.25rem;
 }
 
 .header > nav a {
-    padding: 10px;
-    color: #673ab8;
+    padding: .75em;
+    color: var(--text-color);
     text-decoration: none;
 }
 
 .header > nav a:hover {
-    background-color: #f1e9ff;
+    backdrop-filter: brightness(80%);
 }
 
 .logo {
     height: 1em;
+    fill: var(--text-color);
 }

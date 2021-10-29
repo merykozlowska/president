@@ -87,7 +87,11 @@
 }
 
 .hand .cardCheckbox:focus + .card {
-    background-color: lightyellow;
+    outline: 2px solid var(--text-color);
+}
+
+.hand .cardCheckbox:not(:disabled) + .card:hover {
+    cursor: pointer;
 }
 
 .hand .cardCheckbox:not(:disabled):not(:checked) + .card:hover {

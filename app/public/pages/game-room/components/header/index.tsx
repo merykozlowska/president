@@ -1,4 +1,5 @@
 import { FunctionComponent } from "preact";
+import { Logo } from "../../../components/logo";
 import styles from "./header.module.css";
 
 export const Header: FunctionComponent = () => {
@@ -6,7 +7,7 @@ export const Header: FunctionComponent = () => {
     <header class={styles.header}>
       <nav>
         <a href="/">
-          <img src="/assets/clubs.svg" alt="" class={styles.logo} />
+          <Logo className={styles.logo} />
         </a>
         <a href="/rules" target="_blank">
           Rules

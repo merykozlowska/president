@@ -9,7 +9,7 @@ export const Header: FunctionComponent = () => {
         <a href="/">
           <Logo className={styles.logo} />
         </a>
-        <a href="/rules" target="_blank">
+        <a href="/how-to-play" target="_blank">
           Rules
         </a>
       </nav>

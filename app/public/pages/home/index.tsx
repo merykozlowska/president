@@ -22,7 +22,7 @@ const Home: FunctionComponent = () => {
         <Logo className={styles.logo} />
         <button onClick={handleCreate}>New game</button>
         <a href="/rules" target="_blank" class={styles.rulesLink}>
-          Rules
+          How to play
         </a>
       </section>
     </main>

@@ -2,7 +2,7 @@ import { FunctionComponent } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { Session } from "../session";
 import { Card, ranksCompare } from "../cards";
-import { Player } from "../state";
+import { Player, PlayerRank } from "../state";
 import styles from "./style.module.css";
 
 interface Props {
@@ -13,6 +13,20 @@ interface Props {
   hasToPlay3Club: boolean;
   session: Session;
 }
+
+const playerRankDisplayName: Record<PlayerRank, string> = {
+  [PlayerRank.president]: "President",
+  [PlayerRank.vicePresident]: "Vice-President",
+  [PlayerRank.none]: "Citizen",
+  [PlayerRank.aHole]: "Scum",
+};
+
+const playerRankSymbol: Record<PlayerRank, string> = {
+  [PlayerRank.president]: "🏆",
+  [PlayerRank.vicePresident]: "🥈",
+  [PlayerRank.none]: "🏷️",
+  [PlayerRank.aHole]: "💩",
+};
 
 const Game: FunctionComponent<Props> = ({
   hand,
@@ -93,11 +107,22 @@ const Game: FunctionComponent<Props> = ({
       <section class={styles.players}>
         <ul>
           {players.map((player) => (
-            <li key={player.id}>{`${player.id === playing ? "➡" : ""}${
-              player.name
-            } - ${player.hand.count} ${player.passed ? "- PASSED" : ""} ${
-              player.rank ? player.rank : ""
-            }`}</li>
+            <li
+              key={player.id}
+              class={`${styles.player} ${
+                player.id === playing ? styles.playing : ""
+              }`}
+            >
+              <span class={styles.name}>{player.name}</span>
+              <span class={styles.count}>
+                {player.hand.count > 0
+                  ? `${player.hand.count}🃏`
+                  : playerRankSymbol[player.rank]}
+              </span>
+              <span class={styles.status}>{`${player.passed ? "passed" : ""}${
+                player.rank ? playerRankDisplayName[player.rank] : ""
+              }`}</span>
+            </li>
           ))}
         </ul>
       </section>

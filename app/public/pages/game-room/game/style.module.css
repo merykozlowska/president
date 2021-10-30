@@ -108,10 +108,46 @@
 
 .players {
     flex: 1 0 0;
+    margin: 1rem;
 }
 
-.players > ul > li {
-    padding: 1rem;
+.player {
+    display: grid;
+    grid-template-columns: auto 3em;
+    grid-template-rows: auto minmax(.75em, auto);
+    grid-template-areas:
+        "name count"
+        "status .";
+    align-items: center;
+    justify-items: center;
+    padding: .5em;
+    position: relative;
+    column-gap: 1em;
+}
+
+.player.playing > .name::before {
+    content: "➡";
+    position: absolute;
+    left: -1em;
+}
+
+.player .name {
+    grid-area: name;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.player .count {
+    grid-area: count;
+}
+
+.player .status {
+    grid-area: status;
+    font-size: .5em;
+    text-transform: uppercase;
 }
 
 .buttonsContainer {

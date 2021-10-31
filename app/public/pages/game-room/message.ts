@@ -54,7 +54,6 @@ interface GameState {
   hand: Card[];
   pileTop: Card[];
   playing: string;
-  hasToPlay3Club: boolean;
 }
 
 interface StartGameInMessage {

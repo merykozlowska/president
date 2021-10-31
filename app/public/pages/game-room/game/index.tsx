@@ -11,7 +11,6 @@ interface Props {
   pileTop: Card[];
   players: Player[];
   playing: string;
-  hasToPlay3Club: boolean;
   session: Session;
 }
 
@@ -20,7 +19,6 @@ const Game: FunctionComponent<Props> = ({
   pileTop,
   players,
   playing,
-  hasToPlay3Club,
   session,
 }) => {
   const [selectedCards, setSelectedCards] = useState<Set<Card>>(new Set());
@@ -68,9 +66,6 @@ const Game: FunctionComponent<Props> = ({
   };
 
   const canBePlayed = (card: Card): boolean => {
-    if (hasToPlay3Club) {
-      return card.rank === "3" && card.suit === "♣";
-    }
     if (!pileTop.length) {
       return true;
     }
@@ -153,10 +148,7 @@ const Game: FunctionComponent<Props> = ({
           >
             Play
           </button>
-          <button
-            disabled={playing !== session.id || hasToPlay3Club}
-            onClick={pass}
-          >
+          <button disabled={playing !== session.id} onClick={pass}>
             Pass
           </button>
         </div>

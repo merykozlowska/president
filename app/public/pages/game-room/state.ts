@@ -39,7 +39,6 @@ export interface GameInProgressState {
   players: Player[];
   playing: string;
   pileTop: Card[];
-  hasToPlay3Club: boolean;
 }
 
 export interface FinishedState {

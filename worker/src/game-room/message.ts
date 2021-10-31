@@ -98,7 +98,6 @@ export interface GameStateForPlayer {
   hand: Card[];
   pileTop: Card[];
   playing: string;
-  hasToPlay3Club: boolean;
 }
 
 export interface StartGameOutMessage {

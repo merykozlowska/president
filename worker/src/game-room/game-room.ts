@@ -509,19 +509,11 @@ export class GameRoom {
       };
     });
 
-    const playing = players.find((player) =>
-      player.hand.some((card) => card.rank === "3" && card.suit === "♣")
-    );
-
-    if (!playing) {
-      throw new Error("Player with 3♣ not found");
-    }
-
     this.roomState = {
       state: State.playing,
       players,
       gameState: {
-        playing: playing.id,
+        playing: players[0].id,
         pileTop: [],
         playerRanksLeft: [
           PlayerRank.aHole,

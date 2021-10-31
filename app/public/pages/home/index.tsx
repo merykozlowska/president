@@ -21,7 +21,7 @@ const Home: FunctionComponent = () => {
       <section class={styles.home}>
         <Logo className={styles.logo} />
         <button onClick={handleCreate}>New game</button>
-        <a href="/rules" target="_blank" class={styles.rulesLink}>
+        <a href="/how-to-play" target="_blank" class={styles.rulesLink}>
           How to play
         </a>
       </section>

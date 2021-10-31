@@ -1,0 +1,33 @@
+.ranking {
+    flex: 1 0 0;
+    margin: 1rem;
+}
+
+.player {
+    display: grid;
+    grid-template-columns: 1.5em auto auto;
+    grid-template-areas: "symbol name rank";
+    align-items: center;
+    justify-items: center;
+    padding: .5em 0;
+    column-gap: 1em;
+}
+
+.player .symbol {
+    grid-area: symbol;
+}
+
+.player .name {
+    grid-area: name;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.player .rank {
+    grid-area: rank;
+    font-size: .5em;
+    text-transform: uppercase;
+}

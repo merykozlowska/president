@@ -31,16 +31,22 @@ interface GamePlayer extends CommonPlayer {
   rank: PlayerRank | null;
 }
 
+interface RankingPlayer extends CommonPlayer {
+  rank: PlayerRank;
+}
+
 interface GameState {
   playing: string;
   pileTop: Card[];
   hasToPlay3Club: boolean;
   playerRanksLeft: PlayerRank[];
+  ranking: (string | null)[];
 }
 
 enum State {
   lobby,
   playing,
+  finished,
 }
 
 interface LobbyRoomState {
@@ -54,7 +60,12 @@ interface PlayingRoomState {
   gameState: GameState;
 }
 
-type RoomState = LobbyRoomState | PlayingRoomState;
+interface FinishedState {
+  state: State.finished;
+  players: RankingPlayer[];
+}
+
+type RoomState = LobbyRoomState | PlayingRoomState | FinishedState;
 
 const canHandleMessage = (message: unknown): message is IncomingMessage =>
   IncomingMessageType[(message as IncomingMessage).type] !== undefined;
@@ -205,11 +216,13 @@ export class GameRoom {
         );
 
         if (!player.hand.length) {
-          let nextRank;
+          let nextRank, rankingIdx;
           if (played.some((card) => card.rank === "2")) {
             nextRank = this.roomState.gameState.playerRanksLeft.shift();
+            rankingIdx = this.roomState.gameState.ranking.lastIndexOf(null);
           } else {
             nextRank = this.roomState.gameState.playerRanksLeft.pop();
+            rankingIdx = this.roomState.gameState.ranking.indexOf(null);
           }
           if (!nextRank) {
             console.log(
@@ -218,12 +231,19 @@ export class GameRoom {
             throw new Error("No ranks left???");
           }
           player.rank = nextRank;
+          this.roomState.gameState.ranking[rankingIdx] = player.id;
 
           const playersWithoutRank = this.roomState.players.filter(
             (p) => p.rank == null
           );
+          if (!playersWithoutRank.length) {
+            this.finishGame();
+            break;
+          }
           if (playersWithoutRank.length === 1) {
             const lastRank = this.roomState.gameState.playerRanksLeft.shift();
+            const lastRankingIdx =
+              this.roomState.gameState.ranking.lastIndexOf(null);
             if (!lastRank) {
               console.log(
                 JSON.stringify(this.roomState.gameState.playerRanksLeft)
@@ -231,6 +251,8 @@ export class GameRoom {
               throw new Error("No ranks left???");
             }
             playersWithoutRank[0].rank = lastRank;
+            this.roomState.gameState.ranking[lastRankingIdx] =
+              playersWithoutRank[0].id;
             this.broadcastTurnPlayed({ player });
             this.finishGame();
             break;
@@ -284,8 +306,43 @@ export class GameRoom {
   }
 
   finishGame(): void {
-    // todo
+    if (this.roomState.state !== State.playing) {
+      throw new Error("Cannot finish game when not playing");
+    }
     console.log("GAME ENDED");
+    const players = this.roomState.gameState.ranking.map((playerId) => {
+      const player = (this.roomState as PlayingRoomState).players.find(
+        (p) => p.id === playerId
+      );
+      if (!player) {
+        throw new Error(`Player ${playerId} not found`);
+      }
+      if (!player.rank) {
+        throw new Error(`Player ${player.id} missing rank`);
+      }
+      return {
+        id: player.id,
+        username: player.username,
+        session: player.session,
+        rank: player.rank,
+      };
+    });
+
+    this.roomState = {
+      state: State.finished,
+      players,
+    };
+
+    this.broadcast({
+      type: OutgoingMessageType.gameFinished,
+      payload: {
+        ranking: players.map((player) => ({
+          id: player.id,
+          name: player.username,
+          rank: player.rank,
+        })),
+      },
+    });
   }
 
   startNewRound(): void {
@@ -482,6 +539,7 @@ export class GameRoom {
           ...(numberOfPlayers >= 3 ? [PlayerRank.vicePresident] : []),
           PlayerRank.president,
         ],
+        ranking: new Array(players.length).fill(null),
       },
     };
 

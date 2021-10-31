@@ -7,6 +7,7 @@ import Lobby from "./lobby";
 import { canHandleMessage } from "./message";
 import { GameState, initialState, reducer } from "./state";
 import { Header } from "./components/header";
+import { Ranking } from "./ranking";
 import styles from "./style.module.css";
 
 const GameRoom: FunctionComponent = () => {
@@ -60,6 +61,9 @@ const GameRoom: FunctionComponent = () => {
             hasToPlay3Club={state.hasToPlay3Club}
             session={session}
           />
+        )}
+        {state.gameState === GameState.finished && (
+          <Ranking ranking={state.ranking} />
         )}
       </main>
     </>

@@ -8,6 +8,7 @@ export enum IncomingMessageType {
   ready = "ready",
   startGame = "startGame",
   turnPlayed = "turnPlayed",
+  gameFinished = "gameFinished",
 }
 
 interface InitInMessage {
@@ -70,13 +71,21 @@ interface TurnPlayedInMessage {
   };
 }
 
+interface GameFinishedInMessage {
+  type: IncomingMessageType.gameFinished;
+  payload: {
+    ranking: { id: string; name: string; rank: PlayerRank }[];
+  };
+}
+
 export type IncomingMessage =
   | InitInMessage
   | JoinedInMessage
   | DisconnectedInMessage
   | ReadyInMessage
   | StartGameInMessage
-  | TurnPlayedInMessage;
+  | TurnPlayedInMessage
+  | GameFinishedInMessage;
 
 export const canHandleMessage = (
   message: unknown

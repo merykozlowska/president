@@ -45,6 +45,7 @@ export enum OutgoingMessageType {
   ready = "ready",
   startGame = "startGame",
   turnPlayed = "turnPlayed",
+  gameFinished = "gameFinished",
 }
 
 interface InitOutMessage {
@@ -117,10 +118,18 @@ export interface TurnPlayedOutMessage {
   };
 }
 
+export interface GameFinishedOutMessage {
+  type: OutgoingMessageType.gameFinished;
+  payload: {
+    ranking: { id: string; name: string; rank: PlayerRank }[];
+  };
+}
+
 export type OutgoingMessage =
   | InitOutMessage
   | JoinedOutMessage
   | DisconnectedOutMessage
   | ReadyOutMessage
   | StartGameOutMessage
-  | TurnPlayedOutMessage;
+  | TurnPlayedOutMessage
+  | GameFinishedOutMessage;

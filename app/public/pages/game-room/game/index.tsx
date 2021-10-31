@@ -2,7 +2,8 @@ import { FunctionComponent } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { Session } from "../session";
 import { Card, ranksCompare } from "../cards";
-import { Player, PlayerRank } from "../state";
+import { Player } from "../state";
+import { playerRankDisplayName, playerRankSymbol } from "../player-rank";
 import styles from "./style.module.css";
 
 interface Props {
@@ -13,20 +14,6 @@ interface Props {
   hasToPlay3Club: boolean;
   session: Session;
 }
-
-const playerRankDisplayName: Record<PlayerRank, string> = {
-  [PlayerRank.president]: "President",
-  [PlayerRank.vicePresident]: "Vice-President",
-  [PlayerRank.none]: "Citizen",
-  [PlayerRank.aHole]: "Scum",
-};
-
-const playerRankSymbol: Record<PlayerRank, string> = {
-  [PlayerRank.president]: "🏆",
-  [PlayerRank.vicePresident]: "🥈",
-  [PlayerRank.none]: "🏷️",
-  [PlayerRank.aHole]: "💩",
-};
 
 const Game: FunctionComponent<Props> = ({
   hand,

@@ -53,3 +53,27 @@
     flex: 1 1 25%;
     padding: 1rem 0;
 }
+
+.linkWrapper {
+    flex: 0 1 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: repeat(2, auto);
+    grid-template-areas:
+            "label label"
+            "input button";
+    padding: 1rem 0;
+    gap: 0.5rem;
+}
+
+.linkWrapper > label {
+    grid-area: label;
+}
+
+.linkWrapper > input {
+    grid-area: input;
+}
+
+.linkWrapper > button {
+    grid-area: button;
+}

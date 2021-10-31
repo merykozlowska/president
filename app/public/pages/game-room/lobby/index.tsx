@@ -1,5 +1,5 @@
 import { FunctionComponent } from "preact";
-import { useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
 import { Session } from "../session";
 import { LobbyPlayer } from "../state";
 import styles from "./style.module.css";
@@ -33,6 +33,14 @@ const Lobby: FunctionComponent<Props> = ({
     setReady(true);
   };
 
+  const inputRef = useRef<HTMLInputElement>();
+
+  const copyLink = async () => {
+    inputRef.current.focus();
+    inputRef.current.select();
+    await navigator.clipboard.writeText(window.location.href);
+  };
+
   return !session?.username ? (
     <section>
       <form onSubmit={updateUsername} class={styles.form}>
@@ -60,6 +68,18 @@ const Lobby: FunctionComponent<Props> = ({
           </button>
         </div>
       )}
+      <div class={styles.linkWrapper}>
+        <label htmlFor="link-input">
+          Send this link to your friends to join
+        </label>
+        <input
+          id="link-input"
+          value={window.location.href}
+          readOnly
+          ref={inputRef}
+        />
+        <button onClick={copyLink}>Copy</button>
+      </div>
     </section>
   );
 };
